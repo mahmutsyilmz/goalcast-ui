@@ -1,5 +1,5 @@
 // js/api.js
-const BASE_URL = 'http://localhost:8080/api'; // Spring Boot backend adresiniz
+const BASE_URL = 'https://goalcast-api-ethxh9f4hngugwh9.germanywestcentral-01.azurewebsites.net/api'; // Spring Boot backend adresiniz
 
 /**
  * Backend API'sine istek göndermek için genel bir fonksiyon.
