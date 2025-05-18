@@ -1,0 +1,100 @@
+<!-- views/admin-leagues.html -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Lig Yönetimi</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#leagueModal" id="addLeagueBtn">
+        <i class="fas fa-plus me-1"></i> Yeni Lig Ekle
+    </button>
+</div>
+
+<!-- Sayfaya özel mesaj alanı (admin-leagues-message) ve global mesaj alanı (index.html'den) -->
+<div id="admin-leagues-message" class="mb-3"></div>
+
+<div id="admin-leagues-loading" class="text-center py-5" style="display: none;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Ligler Yükleniyor...</span>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Lig Adı</th>
+                <th scope="col">Ülke</th>
+                <th scope="col">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="admin-leagues-table-body">
+            <!-- Ligler buraya JS ile yüklenecek -->
+        </tbody>
+    </table>
+</div>
+<div id="admin-leagues-empty" class="alert alert-info mt-3" style="display: none;">
+    Gösterilecek lig bulunamadı.
+</div>
+<div id="admin-leagues-error" class="alert alert-danger mt-3" style="display: none;">
+    Ligler yüklenirken bir hata oluştu.
+</div>
+
+<!-- Lig Ekle/Düzenle Modal -->
+<div class="modal fade" id="leagueModal" tabindex="-1" aria-labelledby="leagueModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="league-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="leagueModalLabel">Yeni Lig Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="league-id" name="leagueId"> <!-- Düzenleme için -->
+                    <div id="league-modal-message" class="mb-3"></div>
+
+                    <div class="mb-3">
+                        <label for="league-name" class="form-label">Lig Adı</label>
+                        <input type="text" class="form-control" id="league-name" name="name" required maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="league-country" class="form-label">Ülke</label>
+                        <select class="form-select" id="league-country" name="country" required>
+                            <option value="" selected disabled>Ülke Seçiniz...</option>
+                            <option value="TURKEY">Türkiye</option>
+                            <option value="ENGLAND">İngiltere</option>
+                            <option value="SPAIN">İspanya</option>
+                            <option value="GERMANY">Almanya</option>
+                            <option value="ITALY">İtalya</option>
+                            <option value="FRANCE">Fransa</option>
+                            <!-- Backend'deki Country enum'a göre diğer ülkeler eklenebilir -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn btn-primary" id="saveLeagueBtn">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal Sonu -->
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bu ligi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                {/* Silinecek ID'yi JS ile buraya yazdırabiliriz veya JS içinde tutabiliriz */}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteLeagueBtn">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Silme Modal Sonu -->

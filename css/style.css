@@ -1,0 +1,240 @@
+/* css/style.css */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap');
+
+/* --- GENEL STİLLER --- */
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f8f9fa; /* Açık gri arka plan */
+    color: #343a40; /* Koyu gri metin */
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 80px; /* FOOTER YÜKSEKLİĞİ KADAR VEYA BİRAZ FAZLA - BU DEĞERİ AYARLAYIN */
+    margin: 0;
+}
+
+main.container, /* Eğer <main> kullanıyorsanız */
+div.container:not(nav > .container):not(footer > .container) { /* Veya doğrudan body'nin altındaki container'lar (navbar ve footer hariç) */
+    flex-grow: 1; /* İçeriğin footer'ı aşağı itmesini sağlar */
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: #212529;
+}
+
+a {
+    color: #0d6efd; /* Bootstrap primary */
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0a58ca;
+    text-decoration: none; /* Hover'da da alt çizgi olmasın istiyorsanız veya underline kalsın */
+}
+
+/* --- NAVBAR --- */
+nav.navbar.bg-dark {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+nav.navbar .navbar-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+nav.navbar .nav-link {
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+nav.navbar .nav-link.active,
+nav.navbar .nav-link:hover {
+    color: #ffffff !important; /* Daha parlak */
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 0.3rem;
+}
+.dropdown-menu-dark .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- BUTONLAR --- */
+.btn {
+    transition: all 0.25s ease-in-out;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); */ /* Daha sade bir görünüm için kaldırılabilir */
+    border-radius: 0.3rem;
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* --- FORMLAR --- */
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* --- KARTLAR (Genel ve Maç Kartları) --- */
+.card {
+    border: 1px solid #e0e0e0; /* Hafif bir border */
+    border-radius: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff; /* Kartların arka planı beyaz */
+}
+
+.card:hover {
+    /* transform: translateY(-3px); */ /* Daha subtle bir hover efekti */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background-color: #f8f9fa; /* Bootstrap'in hafif gri rengi */
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+}
+
+#matches-list .card-header { /* Maç kartı header'ı için özel */
+    font-size: 0.9rem;
+    background-color: #e9ecef; 
+}
+    
+#matches-list .card-header span {
+    font-weight: 600;
+}
+
+#matches-list .card-title {
+    font-size: 1.2rem; /* Takım adları */
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+#matches-list .card-text {
+    font-size: 0.9rem;
+}
+#matches-list .card-text strong {
+    margin-right: 0.4em;
+}
+    
+#matches-list .card-text.fs-4 { /* Skor */
+    color: #198754;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+#matches-list .card-footer {
+    background-color: transparent; /* Footer arka planını kaldıralım */
+    border-top: 1px solid #e0e0e0;
+    padding: 0.75rem 1.25rem;
+}
+#matches-list .predict-btn {
+    font-weight: 500;
+    background-color: #ff9800; /* Canlı bir turuncu */
+    border-color: #ff9800;
+    color: white;
+}
+#matches-list .predict-btn:hover {
+    background-color: #f57c00;
+    border-color: #ef6c00;
+}
+
+/* --- TABLOLAR (Admin sayfaları için) --- */
+.table {
+    border-radius: 0.3rem;
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.table thead th {
+    background-color: #495057; /* Biraz daha açık koyu gri */
+    color: #fff;
+    border-bottom-width: 0;
+    font-weight: 600;
+    white-space: nowrap; /* Başlıkların tek satırda kalmasını sağla */
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table td .btn {
+    margin-right: 0.3rem;
+    margin-bottom: 0.3rem;
+}
+.table td .btn:last-child {
+    margin-right: 0;
+}
+.table td .btn i { /* Buton içindeki ikonlara biraz sağ boşluk */
+    margin-right: 0.25rem;
+}
+
+
+/* --- MODALLAR --- */
+.modal-content {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+/* --- FOOTER --- */
+footer.bg-dark {
+    padding: 1.5rem 0; /* Üst ve alt padding */
+    /* fixed-bottom ile kullanılıyorsa margin-top:auto gereksiz */
+}
+
+/* --- ANA SAYFA ÖZEL --- */
+.jumbotron-custom { /* index.html'deki p-5... div'ine bu sınıfı verebilirsiniz */
+    background-color: #eef2f7; /* Daha yumuşak bir mavi-gri */
+    padding: 4rem 2rem;
+}
+
+.jumbotron-custom h1 {
+    color: #2c3e50; /* Koyu mavi-gri */
+}
+
+.index-feature-card {
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    height: 100%; /* Kartların aynı yükseklikte olmasını sağlar */
+}
+.index-feature-card.bg-dark {
+    color: white;
+}
+.index-feature-card .btn {
+    margin-top: 1rem;
+}

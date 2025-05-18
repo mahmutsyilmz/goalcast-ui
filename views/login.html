@@ -1,0 +1,31 @@
+<!-- views/login.html -->
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card"> <!-- shadow-sm sınıfı css/style.css'ten gelebilir veya burada kalabilir -->
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Giriş Yap</h2>
+
+                <div id="login-message" class="mb-3"></div> <!-- Mesaj alanı -->
+                <!-- <div id="global-message-area" class="mb-3"></div> Artık index.html'de tek bir tane olacak -->
+
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Şifre</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Giriş Yap</button> <!-- btn-block Bootstrap 5'te d-grid ile kullanılır -->
+                    </div>
+                </form>
+                <hr class="my-4">
+                <p class="text-center">
+                    Hesabın yok mu? <a href="#/register">Hemen Kayıt Ol</a> <!-- Link #/register olarak güncellendi -->
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

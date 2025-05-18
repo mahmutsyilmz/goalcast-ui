@@ -1,0 +1,138 @@
+<!-- views/admin-matches.html -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Maç Yönetimi</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#matchModal" id="addMatchBtn">
+        <i class="fas fa-plus me-1"></i> Yeni Maç Ekle
+    </button>
+</div>
+
+<div id="admin-matches-message" class="mb-3"></div>
+
+<div id="admin-matches-loading" class="text-center py-5" style="display: none;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Maçlar Yükleniyor...</span>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Lig</th>
+                <th scope="col">Ev Sahibi</th>
+                <th scope="col">Deplasman</th>
+                <th scope="col">Maç Tarihi</th>
+                <th scope="col">Skor</th>
+                <th scope="col">Durum</th>
+                <th scope="col">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="admin-matches-table-body">
+            <!-- Maçlar buraya JS ile yüklenecek -->
+        </tbody>
+    </table>
+</div>
+<div id="admin-matches-empty" class="alert alert-info mt-3" style="display: none;">
+    Gösterilecek maç bulunamadı.
+</div>
+<div id="admin-matches-error" class="alert alert-danger mt-3" style="display: none;">
+    Maçlar yüklenirken bir hata oluştu.
+</div>
+
+<!-- Maç Ekle/Düzenle Modal -->
+<div class="modal fade" id="matchModal" tabindex="-1" aria-labelledby="matchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="match-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="matchModalLabel">Yeni Maç Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="match-id" name="matchId">
+                    <div id="match-modal-message" class="mb-3"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="match-leagueId" class="form-label">Lig</label>
+                            <select class="form-select" id="match-leagueId" name="leagueId" required>
+                                <option value="" selected disabled>Lig Seçiniz...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="match-matchDate" class="form-label">Maç Tarihi ve Saati</label>
+                            <input type="datetime-local" class="form-control" id="match-matchDate" name="matchDate" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="match-homeTeam" class="form-label">Ev Sahibi Takım</label>
+                            <input type="text" class="form-control" id="match-homeTeam" name="homeTeam" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="match-awayTeam" class="form-label">Deplasman Takımı</label>
+                            <input type="text" class="form-control" id="match-awayTeam" name="awayTeam" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn btn-primary" id="saveMatchBtn">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Maç Sonucu Güncelle Modal -->
+<div class="modal fade" id="matchResultModal" tabindex="-1" aria-labelledby="matchResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="match-result-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="matchResultModalLabel">Maç Sonucunu Güncelle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="result-match-id" name="matchId">
+                    <p><strong>Maç:</strong> <span id="result-match-info"></span></p>
+                    <div id="match-result-modal-message" class="mb-3"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="result-homeScore" class="form-label">Ev Sahibi Skor</label>
+                            <input type="number" class="form-control" id="result-homeScore" name="homeScore" required min="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="result-awayScore" class="form-label">Deplasman Skor</label>
+                            <input type="number" class="form-control" id="result-awayScore" name="awayScore" required min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn btn-primary" id="saveMatchResultBtn">Sonucu Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteMatchConfirmModal" tabindex="-1" aria-labelledby="deleteMatchConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteMatchConfirmModalLabel">Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bu maçı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                {/* Silinecek ID JS ile buraya eklenebilir veya JS içinde tutulabilir */}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteMatchBtn">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+</div>

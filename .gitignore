@@ -1,0 +1,14 @@
+# İşletim sistemi dosyaları
+.DS_Store
+Thumbs.db
+
+# IDE/Editör dosyaları
+.vscode/
+.idea/
+
+# Bağımlılık klasörleri (eğer npm veya benzeri bir araç kullansaydınız)
+# node_modules/
+
+# Build çıktıları (eğer bir build süreciniz olsaydı)
+# dist/
+# build/

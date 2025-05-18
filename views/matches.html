@@ -1,0 +1,84 @@
+<!-- views/matches.html -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Yaklaşan Maçlar</h2>
+</div>
+
+<div id="matches-message" class="mb-3"></div>
+
+<div class="card mb-4">
+    <div class="card-header">Filtrele</div>
+    <div class="card-body">
+        <form id="filter-matches-form" class="row g-3 align-items-end">
+            <div class="col-md-4 col-sm-6">
+                <label for="filter-leagueId" class="form-label">Lig</label>
+                <select id="filter-leagueId" class="form-select">
+                    <option value="">Tüm Ligler</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label for="filter-startDate" class="form-label">Başlangıç Tarihi</label>
+                <input type="datetime-local" class="form-control" id="filter-startDate">
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label for="filter-endDate" class="form-label">Bitiş Tarihi</label>
+                <input type="datetime-local" class="form-control" id="filter-endDate">
+            </div>
+            <div class="col-md-2 col-sm-6 d-grid">
+                <button type="submit" class="btn btn-primary">Filtrele</button>
+                <button type="button" id="clear-filters-btn" class="btn btn-outline-secondary mt-2" style="display: none;">Temizle</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="matches-loading" class="text-center py-5" style="display: none;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Maçlar Yükleniyor...</span>
+    </div>
+</div>
+
+<div id="matches-list" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <!-- Maç kartları buraya JS ile eklenecek -->
+</div>
+
+<div id="matches-error" class="alert alert-danger mt-3" style="display: none;">
+    Maçlar yüklenirken bir hata oluştu veya filtrenize uygun maç bulunamadı.
+</div>
+
+<!-- Tahmin Yap Modal -->
+<div class="modal fade" id="predictionModal" tabindex="-1" aria-labelledby="predictionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="predictionModalLabel">Maç Tahmini Yap</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="prediction-form">
+                <div class="modal-body">
+                    <input type="hidden" id="predict-match-id" name="matchId">
+                    <p><strong>Maç:</strong> <span id="predict-match-teams"></span></p>
+                    <div id="prediction-message-modal" class="mb-3"></div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="predictedHomeScore" class="form-label" id="predict-home-team-label">Ev Sahibi Skor</label>
+                            <input type="number" class="form-control" id="predictedHomeScore" name="predictedHomeScore" required min="0">
+                        </div>
+                        <div class="col">
+                            <label for="predictedAwayScore" class="form-label" id="predict-away-team-label">Deplasman Skor</label>
+                            <input type="number" class="form-control" id="predictedAwayScore" name="predictedAwayScore" required min="0">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="stakePoints" class="form-label">Risk Edilecek Puan (100-1000)</label>
+                        <input type="number" class="form-control" id="stakePoints" name="stakePoints" required min="100" max="1000" step="50">
+                        <div class="form-text">Mevcut puanınızdan düşülecektir. Min 100, Max 1000.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn btn-primary">Tahmini Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

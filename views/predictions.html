@@ -1,0 +1,30 @@
+<!-- views/predictions.html -->
+<h2 class="mb-4">Tahminlerim</h2>
+<div id="predictions-message" class="mb-3"></div>
+<div id="predictions-loading" class="text-center py-5" style="display: none;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Tahminler Yükleniyor...</span>
+    </div>
+</div>
+<div id="predictions-list" class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Maç ID</th>
+                <th scope="col">Maç</th>
+                <th scope="col">Lig</th>
+                <th scope="col">Tahmininiz</th>
+                <th scope="col">Risk Edilen Puan</th>
+                <th scope="col">Durum</th>
+                <th scope="col">Kazanılan Puan</th>
+            </tr>
+        </thead>
+        <tbody id="predictions-table-body"></tbody>
+    </table>
+</div>
+<div id="predictions-empty" class="alert alert-info mt-3" style="display: none;">
+    Henüz yapılmış bir tahmininiz bulunmamaktadır. <a href="#/matches">Maçlara göz atın!</a>
+</div>
+<div id="predictions-error" class="alert alert-danger mt-3" style="display: none;">
+    Tahminler yüklenirken bir hata oluştu.
+</div>

@@ -1,0 +1,68 @@
+<!-- views/home.html -->
+<div class="p-5 mb-4 bg-light rounded-3 jumbotron-custom">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Merhaba, GoalCast'e Hoş Geldiniz!</h1>
+        <p class="col-md-8 fs-4">
+            Futbol tahminlerinizi yapın, puanlarınızı katlayın ve liderlik tablosunda yükselin!
+            Hemen maçlara göz atın veya en son tahminlerinizi kontrol edin.
+        </p>
+        <div id="index-cta-buttons" class="mt-4">
+            <a class="btn btn-primary btn-lg me-2" href="#/matches" role="button">Maçları Görüntüle</a>
+            <a class="btn btn-outline-secondary btn-lg" href="#/login" role="button" id="index-login-cta" style="display: none;">Giriş Yap</a>
+            <a class="btn btn-info btn-lg" href="#/predictions" role="button" id="index-predictions-cta" style="display: none;">Tahminlerim</a>
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch">
+    <div class="col-md-6 mb-3">
+        <div class="h-100 p-5 text-bg-dark rounded-3 index-feature-card">
+            <h2>Ligler</h2>
+            <p>Tüm popüler liglerdeki maçlara göz atın ve favorilerinizi takip edin.</p>
+            <a class="btn btn-outline-light" href="#/leagues" role="button">Ligleri Keşfet</a>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="h-100 p-5 bg-body-tertiary border rounded-3 index-feature-card">
+            <h2>Nasıl Çalışır?</h2>
+            <p>Beğendiğiniz maçlara tahmin yapın, doğru tahminlerinizle puan kazanın. Ne kadar risk alırsanız, o kadar çok kazanabilirsiniz!</p>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#howToPlayModal">Daha Fazla Bilgi</button>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5 p-3 border rounded-3" id="test-buttons-section" style="display: none;">
+    <h4>Geliştirici Test Butonları</h4>
+    <button type="button" class="btn btn-primary">Örnek Bootstrap Butonu</button>
+    <button type="button" class="btn btn-success ms-2" onclick="testSuccessMessage()">Başarı Mesajı Test</button>
+    <button type="button" class="btn btn-danger ms-2" onclick="testErrorMessage()">Hata Mesajı Test</button>
+    <button type="button" class="btn btn-warning ms-2" onclick="testApiError()">API Hata Testi (404)</button>
+</div>
+
+<!-- Nasıl Çalışır Modalı (Eğer her sayfada ortak değilse, home.html içinde kalabilir) -->
+<div class="modal fade" id="howToPlayModal" tabindex="-1" aria-labelledby="howToPlayModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="howToPlayModalLabel">GoalCast Nasıl Çalışır?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>GoalCast, futbol maçları için bir tahmin platformudur.</p>
+        <ol>
+          <li><strong>Kayıt Olun ve Giriş Yapın:</strong> Platformu kullanmaya başlamak için basit bir kayıt işlemi yapın.</li>
+          <li><strong>Maçları İnceleyin:</strong> "#/matches" sayfasından yaklaşan maçları ve ligleri görüntüleyin.</li>
+          <li><strong>Tahmininizi Yapın:</strong> <!-- ... (içerik aynı) ... --></li>
+          <li><strong>Sonuçları Bekleyin:</strong> Maçlar tamamlandıktan sonra tahminleriniz değerlendirilir.</li>
+          <li><strong>Puan Kazanın:</strong> <!-- ... (içerik aynı) ... --></li>
+          <li><strong>Profilinizi Takip Edin:</strong> "#/dashboard" sayfasından toplam puanınızı görebilirsiniz.</li>
+          <li><strong>Tahminlerinizi Gözden Geçirin:</strong> "#/predictions" sayfasından tüm tahminlerinizi görebilirsiniz.</li>
+        </ol>
+        <p>İyi eğlenceler ve bol şans!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anladım</button>
+      </div>
+    </div>
+  </div>
+</div>
