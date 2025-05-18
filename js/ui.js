@@ -55,6 +55,24 @@ function hideSpinner(spinnerId) {
     }
 }
 
+/**
+ * Verilen string içindeki HTML özel karakterlerini escape eder.
+ * XSS saldırılarını önlemeye yardımcı olur.
+ * @param {string} str - Escape edilecek string.
+ * @returns {string} - Escape edilmiş string.
+ */
+// js/ui.js - escapeHTML fonksiyonu içinde
+
+function escapeHTML(str) {
+    if (str === null || typeof str === 'undefined') return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // İleride eklenebilecek diğer UI yardımcı fonksiyonları:
 // - Formu temizleme
 // - Modal gösterme/gizleme vb.

@@ -1,0 +1,25 @@
+<!-- goalcast-ui/views/leaderboard.html -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Lider Tablosu</h2>
+    <div id="leaderboard-loading" class="text-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yükleniyor...</span>
+        </div>
+    </div>
+    <div id="leaderboard-error" class="alert alert-danger" style="display: none;" role="alert">
+        Lider tablosu yüklenirken bir hata oluştu.
+    </div>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Kullanıcı Adı</th>
+                <th scope="col">Puan</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+            <!-- Veriler buraya JS ile eklenecek -->
+        </tbody>
+    </table>
+    <!-- İsteğe bağlı: Daha fazla yükle butonu vb. eklenebilir -->
+</div>

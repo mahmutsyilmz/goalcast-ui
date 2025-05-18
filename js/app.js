@@ -7,17 +7,23 @@ const APP_CONFIG = {
 
 const appContent = document.getElementById('app-content');
 
+// js/app.js
 const routes = {
     '/': { templatePath: 'views/home.html', title: 'Ana Sayfa' },
     '/login': { templatePath: 'views/login.html', title: 'Giriş Yap' },
     '/register': { templatePath: 'views/register.html', title: 'Kayıt Ol' },
     '/dashboard': { templatePath: 'views/dashboard.html', title: 'Panelim', authRequired: true },
     '/leagues': { templatePath: 'views/leagues.html', title: 'Ligler' },
-    '/matches': { templatePath: 'views/matches.html', title: 'Maçlar' }, // Bu route için query param okunacak
+    '/matches': { templatePath: 'views/matches.html', title: 'Maçlar' },
     '/predictions': { templatePath: 'views/predictions.html', title: 'Tahminlerim', authRequired: true },
     '/admin/leagues': { templatePath: 'views/admin-leagues.html', title: 'Admin - Lig Yönetimi', authRequired: true, adminRequired: true },
     '/admin/matches': { templatePath: 'views/admin-matches.html', title: 'Admin - Maç Yönetimi', authRequired: true, adminRequired: true },
-    '/unauthorized': { templatePath: 'views/unauthorized.html', title: 'Yetkisiz Erişim' }
+    '/unauthorized': { templatePath: 'views/unauthorized.html', title: 'Yetkisiz Erişim' },
+    '/leaderboard': { // <-- BASİTLEŞTİRİLDİ
+        templatePath: 'views/leaderboard.html',
+        title: 'Lider Tablosu'
+        // script ve onLoad anahtarlarını ŞİMDİLİK kaldır.
+    },
 };
 
 async function router() {
@@ -104,9 +110,17 @@ async function loadPageScript(routePath) {
         scriptElement.src = scriptPath;
         scriptElement.type = 'text/javascript'; 
         
-        scriptElement.onload = () => { 
-            console.log(`SUCCESS: ${scriptPath} loaded and executed (onload).`);
-        };
+        scriptElement.onload = () => {
+        console.log(`SUCCESS: ${scriptPath} loaded and executed (onload).`);
+        // routePath, '/leaderboard' gibi query string içermeyen path olmalı.
+        const currentRouteDefinition = routes[routePath];
+        if (currentRouteDefinition && currentRouteDefinition.onLoad && typeof window[currentRouteDefinition.onLoad] === 'function') {
+            console.log(`Calling onLoad function: ${currentRouteDefinition.onLoad} for path ${routePath}`);
+            window[currentRouteDefinition.onLoad](); // onLoad'da belirtilen global fonksiyonu çağır
+        } else if (currentRouteDefinition && currentRouteDefinition.onLoad) {
+            console.warn(`onLoad function "${currentRouteDefinition.onLoad}" for path ${routePath} not found or not a function.`);
+        }
+    };
         scriptElement.onerror = (event) => { 
             console.warn(`WARNING: ${scriptPath} could not be loaded or not found. This might be okay if the page has no specific JS (e.g., for a simple 404 page).`, event);
         };
@@ -119,8 +133,8 @@ async function loadPageScript(routePath) {
 function updateNavigation() {
     const token = localStorage.getItem('jwtToken');
     const userRole = localStorage.getItem('userRole');
-    const navUl = document.querySelector('#navbarNav .navbar-nav');
-    
+    const navUl = document.querySelector('#navbarNav .navbar-nav'); // Bu satır doğru
+
     // Aktif route'u belirlerken query string'i dikkate alma
     const currentFullHash = location.hash || '#/';
     const currentPathOnly = currentFullHash.split('?')[0]; // Sadece #/path kısmı
@@ -132,6 +146,9 @@ function updateNavigation() {
         <li class="nav-item"><a class="nav-link ${currentPathOnly === '#/' ? 'active' : ''}" href="#/">Ana Sayfa</a></li>
         <li class="nav-item"><a class="nav-link ${currentPathOnly === '#/leagues' ? 'active' : ''}" href="#/leagues">Ligler</a></li>
         <li class="nav-item"><a class="nav-link ${currentPathOnly === '#/matches' ? 'active' : ''}" href="#/matches">Maçlar</a></li>
+        
+        <!-- YENİ: Lider Tablosu Linki -->
+        <li class="nav-item"><a class="nav-link ${currentPathOnly === '#/leaderboard' ? 'active' : ''}" href="#/leaderboard">Lider Tablosu</a></li> 
     `;
     
     if (token) {
