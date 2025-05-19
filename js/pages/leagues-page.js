@@ -57,12 +57,19 @@ function initializeLeaguesPage() {
         }
     }
     
-    // countryEnumValues burada tanımlı değil. Bunu global yapabiliriz veya app.js'den alabiliriz.
-    // Şimdilik en üste taşıyalım veya loadLeagues içine alalım (eğer sadece orada lazımsa).
-    const countryEnumValues = { 
-        "TURKEY": "Türkiye", "ENGLAND": "İngiltere", "SPAIN": "İspanya",
-        "GERMANY": "Almanya", "ITALY": "İtalya", "FRANCE": "Fransa"
-    }; // Bu leagues-page.js içinde de olmalı.
+        // leagues-page.js içinde güncellenmiş hali
+    const countryEnumValues = {
+        "TURKEY": "Türkiye",
+        "FRANCE": "Fransa",
+        "ENGLAND": "İngiltere",
+        "SPAIN": "İspanya",
+        "ITALY": "İtalya",
+        "GERMANY": "Almanya",
+        "CHAMPIONS_LEAGUE": "Şampiyonlar Ligi",
+        "EUROPA_LEAGUE": "Avrupa Ligi",
+        "CONFERENCE_LEAGUE": "Konferans Ligi",
+        "OTHER": "Diğer Turnuvalar" // Veya "Diğer"
+    };
 
     loadLeagues();
 }

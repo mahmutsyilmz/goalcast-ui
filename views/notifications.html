@@ -1,0 +1,29 @@
+<!-- goalcast-ui/views/notifications.html -->
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Tüm Bildirimler</h2>
+        <button id="mark-all-read-btn" class="btn btn-sm btn-outline-secondary" style="display: none;">Tümünü Okundu İşaretle</button>
+    </div>
+
+    <div id="notifications-page-message" class="mb-3"></div>
+
+    <div id="notifications-page-loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Bildirimler Yükleniyor...</span>
+        </div>
+    </div>
+
+    <div id="notifications-page-error" class="alert alert-danger" style="display: none;">
+        Bildirimler yüklenirken bir hata oluştu.
+    </div>
+
+    <div id="notifications-list-container">
+        <!-- Bildirim listesi buraya gelecek -->
+    </div>
+
+    <nav id="notifications-pagination-nav" aria-label="Bildirim Sayfaları" class="mt-4" style="display: none;">
+        <ul class="pagination justify-content-center" id="notifications-pagination">
+            <!-- Sayfalama linkleri buraya gelecek -->
+        </ul>
+    </nav>
+</div>

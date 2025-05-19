@@ -1,5 +1,5 @@
 // js/api.js
-const BASE_URL = 'ttps://goalcast-api-ethxh9f4hngugwh9.germanywestcentral-01.azurewebsites.net/api'; // Spring Boot backend adresiniz
+const BASE_URL = 'https://goalcast-api-ethxh9f4hngugwh9.germanywestcentral-01.azurewebsites.net/api'; // Spring Boot backend adresiniz
 //https://goalcast-api-ethxh9f4hngugwh9.germanywestcentral-01.azurewebsites.net/api
 
 /**

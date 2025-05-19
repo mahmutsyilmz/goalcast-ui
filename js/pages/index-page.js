@@ -1,31 +1,35 @@
 // js/pages/index-page.js
 console.log('index-page.js: Script başladı.');
 
-// Test fonksiyonları global scope'ta kalabilir çünkü onclick ile çağrılıyorlar
-// views/home.html içindeki butonlardan.
+// Test fonksiyonları global scope'ta kalabilir
 function testSuccessMessage() {
-    if (typeof showMessage === 'function') {
-        showMessage('global-message-area', 'Bu bir başarı mesajıdır!', 'success');
+    if (typeof showMessage === 'function' && document.getElementById('test-message-area')) {
+        showMessage('test-message-area', 'Bu bir başarı mesajı testidir! Her şey yolunda.', 'success');
     } else {
-        console.warn('index-page.js: showMessage fonksiyonu bulunamadı.');
+        console.warn('index-page.js: showMessage fonksiyonu veya test-message-area bulunamadı.');
     }
 }
 
 function testErrorMessage() {
-    if (typeof showMessage === 'function') {
-        showMessage('global-message-area', 'Bu bir hata mesajıdır!', 'danger');
+    if (typeof showMessage === 'function' && document.getElementById('test-message-area')) {
+        showMessage('test-message-area', 'Bu bir hata mesajı testidir! Bir sorun oluştu.', 'danger');
     } else {
-        console.warn('index-page.js: showMessage fonksiyonu bulunamadı.');
+        console.warn('index-page.js: showMessage fonksiyonu veya test-message-area bulunamadı.');
     }
 }
 
 async function testApiError() {
-    if (typeof fetchAPI === 'function') {
-        if (typeof clearMessage === 'function') clearMessage('global-message-area'); 
-        const response = await fetchAPI('/nonexistent/endpoint', 'GET');
-        console.log('API Test Response:', response);
+    if (typeof fetchAPI === 'function' && document.getElementById('test-message-area')) {
+        if (typeof showMessage === 'function') showMessage('test-message-area', 'Varolmayan bir API endpointine istek atılıyor...', 'info');
+        try {
+            const response = await fetchAPI('/nonexistent/endpoint-test', 'GET', null, false); // fetchAPI zaten hatayı handle eder
+            console.log('API Test Response (eğer başarılıysa, ki olmamalı):', response);
+        } catch (e) {
+            // fetchAPI içindeki catch bloğu zaten showMessage ile global mesajı göstermeli
+            console.log("testApiError içinde yakalanan hata (beklenen):", e);
+        }
     } else {
-        console.warn('index-page.js: fetchAPI fonksiyonu bulunamadı.');
+        console.warn('index-page.js: fetchAPI fonksiyonu veya test-message-area bulunamadı.');
     }
 }
 
@@ -33,30 +37,44 @@ function initializeIndexPage() {
     console.log('index-page.js: initializeIndexPage fonksiyonu çalıştı.');
     
     const token = localStorage.getItem('jwtToken');
-    const indexLoginCta = document.getElementById('index-login-cta');
-    const indexPredictionsCta = document.getElementById('index-predictions-cta');
-    const testButtonsSection = document.getElementById('test-buttons-section'); 
+    // Ana CTA butonları
+    const matchesCta = document.getElementById('index-matches-cta'); // Bu her zaman görünür olabilir
+    const registerCta = document.getElementById('index-register-cta');
+    const predictionsCta = document.getElementById('index-predictions-cta');
+    const dashboardCta = document.getElementById('index-dashboard-cta');
 
-    if (token) {
-        if (indexLoginCta) indexLoginCta.style.display = 'none';
-        if (indexPredictionsCta) indexPredictionsCta.style.display = 'inline-block';
+    // Geliştirici test butonları bölümü
+    //const testButtonsSection = document.getElementById('test-buttons-section'); 
+
+    if (registerCta && predictionsCta && dashboardCta) { // Tüm butonların varlığını kontrol et
+        if (token) {
+            // Kullanıcı giriş yapmışsa
+            if(registerCta) registerCta.style.display = 'none';
+            if(predictionsCta) predictionsCta.style.display = 'inline-block'; // veya 'block' ya da flex stiline göre
+            if(dashboardCta) dashboardCta.style.display = 'inline-block';
+        } else {
+            // Kullanıcı giriş yapmamışsa
+            if(registerCta) registerCta.style.display = 'inline-block';
+            if(predictionsCta) predictionsCta.style.display = 'none';
+            if(dashboardCta) dashboardCta.style.display = 'none';
+        }
     } else {
-        if (indexLoginCta) indexLoginCta.style.display = 'inline-block';
-        if (indexPredictionsCta) indexPredictionsCta.style.display = 'none';
+        console.warn('index-page.js: Ana sayfa CTA butonlarından bazıları DOM\'da bulunamadı.');
     }
     
     if (testButtonsSection) {
-       testButtonsSection.style.display = 'none'; // Varsayılan olarak gizli kalsın
-        // URL'de ?dev=true varsa göstermek için:
-        // const urlParams = new URLSearchParams(location.hash.split('?')[1] || ''); // Hash'ten sonraki query string'i al
-        // if (urlParams.has('dev')) {
-        //    testButtonsSection.style.display = 'block';
-        // }
+       // Sadece yerel geliştirme ortamında göster
+       if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+           testButtonsSection.style.display = 'block';
+       } else {
+           testButtonsSection.style.display = 'none';
+       }
     }
     
     console.log('index-page.js: Ana sayfa UI güncellemeleri tamamlandı.');
 }
 
+// Sayfa yüklendiğinde ana fonksiyonu çağır
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeIndexPage);
 } else {

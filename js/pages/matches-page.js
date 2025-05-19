@@ -344,6 +344,11 @@ function initializeMatchesPage() {
         if (response.success && response.data) {
             if(typeof showMessage === 'function' && predictionMessageModal) showMessage('prediction-message-modal', response.message || 'Tahmin başarıyla kaydedildi!', 'success');
             console.log("matches-page.js: Tahmin başarılı, modal kapatılacak.");
+            if (typeof response.data.updatedUserTotalPoints !== 'undefined') {
+                // updateUserStateAndRefreshUI(response.data.updatedUserTotalPoints, null); // Yardımcı fonksiyonla
+                localStorage.setItem('totalPoints', response.data.updatedUserTotalPoints);
+                if (typeof updateNavigation === 'function') updateNavigation();
+            }
             setTimeout(() => {
                 if(predictionModal) predictionModal.hide(); 
             }, 1500);

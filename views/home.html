@@ -1,68 +1,141 @@
 <!-- views/home.html -->
-<div class="p-5 mb-4 bg-light rounded-3 jumbotron-custom">
-    <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">Merhaba, GoalCast'e Hoş Geldiniz!</h1>
-        <p class="col-md-8 fs-4">
-            Futbol tahminlerinizi yapın, puanlarınızı katlayın ve liderlik tablosunda yükselin!
-            Hemen maçlara göz atın veya en son tahminlerinizi kontrol edin.
+
+<!-- Jumbotron / Hero Section -->
+<div class="p-5 mb-5 rounded-3 jumbotron-custom" style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1600250494295-1d愊c529ffe?auto=format&fit=crop&w=1400&q=80') no-repeat center center; background-size: cover;">
+    <div class="container-fluid py-5 text-center">
+        <i class="fas fa-futbol fa-4x mb-4 text-warning"></i>
+        <h1 class="display-4 fw-bolder">GoalCast'e Hoş Geldiniz!</h1> <!-- fw-bolder eklendi -->
+        <p class="col-lg-8 mx-auto fs-5 lead mb-4">
+            Futbol tutkunuzu bir sonraki seviyeye taşıyın! En sevdiğiniz maçlar için tahminlerinizi yapın,
+            puanlarınızı stratejik bir şekilde kullanarak liderlik tablosunda zirveye oynayın.
         </p>
-        <div id="index-cta-buttons" class="mt-4">
-            <a class="btn btn-primary btn-lg me-2" href="#/matches" role="button">Maçları Görüntüle</a>
-            <a class="btn btn-outline-secondary btn-lg" href="#/login" role="button" id="index-login-cta" style="display: none;">Giriş Yap</a>
-            <a class="btn btn-info btn-lg" href="#/predictions" role="button" id="index-predictions-cta" style="display: none;">Tahminlerim</a>
+        <div id="index-cta-buttons" class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+            <a class="btn btn-primary btn-lg px-4 fw-bold" href="#/matches" role="button" id="index-matches-cta">
+                <i class="fas fa-search me-2"></i>Maçları Keşfet
+            </a>
+            <a class="btn btn-outline-light btn-lg px-4 fw-bold" href="#/register" role="button" id="index-register-cta" style="display: none;">
+                <i class="fas fa-user-plus me-2"></i>Hemen Kayıt Ol!
+            </a>
+            <a class="btn btn-info btn-lg px-4 fw-bold text-dark" href="#/predictions" role="button" id="index-predictions-cta" style="display: none;">
+                <i class="fas fa-list-check me-2"></i>Tahminlerim
+            </a>
+            <a class="btn btn-success btn-lg px-4 fw-bold" href="#/dashboard" role="button" id="index-dashboard-cta" style="display: none;">
+                <i class="fas fa-tachometer-alt me-2"></i>Panelim
+            </a>
         </div>
     </div>
 </div>
 
-<div class="row align-items-md-stretch">
-    <div class="col-md-6 mb-3">
-        <div class="h-100 p-5 text-bg-dark rounded-3 index-feature-card">
-            <h2>Ligler</h2>
-            <p>Tüm popüler liglerdeki maçlara göz atın ve favorilerinizi takip edin.</p>
-            <a class="btn btn-outline-light" href="#/leagues" role="button">Ligleri Keşfet</a>
+<!-- Özellik Kartları Bölümü -->
+<div class="row align-items-md-stretch mb-5">
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="h-100 p-5 text-white bg-primary rounded-3 index-feature-card shadow-lg">
+            <div class="icon-container"><i class="fas fa-trophy"></i></div>
+            <h2>Liderlik Yarışı</h2>
+            <p>Doğru tahminlerle puanları topla, en iyiler arasına gir ve liderlik tablosunda adını herkese duyur!</p>
+            <a class="btn btn-outline-light mt-auto" href="#/leaderboard" role="button">Lider Tablosunu Gör</a>
         </div>
     </div>
-    <div class="col-md-6 mb-3">
-        <div class="h-100 p-5 bg-body-tertiary border rounded-3 index-feature-card">
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="h-100 p-5 bg-light border rounded-3 index-feature-card shadow-lg">
+            <div class="icon-container"><i class="fas fa-list-ol text-success"></i></div>
+            <h2>Çeşitli Ligler</h2>
+            <p>Süper Lig'den Premier Lig'e, La Liga'dan Serie A'ya, popüler tüm futbol liglerindeki maçlar için tahmin yapabilirsin.</p>
+            <a class="btn btn-outline-success mt-auto" href="#/leagues" role="button">Tüm Ligler</a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-12 mb-4"> <!-- Son kart md'de tam genişlik alabilir veya lg'de 4 kalabilir -->
+        <div class="h-100 p-5 text-white bg-secondary rounded-3 index-feature-card shadow-lg">
+            <div class="icon-container"><i class="fas fa-question-circle"></i></div>
             <h2>Nasıl Çalışır?</h2>
-            <p>Beğendiğiniz maçlara tahmin yapın, doğru tahminlerinizle puan kazanın. Ne kadar risk alırsanız, o kadar çok kazanabilirsiniz!</p>
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#howToPlayModal">Daha Fazla Bilgi</button>
+            <p>Basit adımlarla tahminini yap, maç sonucunu bekle ve puanlarını katla. Detaylar için tıkla!</p>
+            <button class="btn btn-outline-light mt-auto" type="button" data-bs-toggle="modal" data-bs-target="#howToPlayModal">Öğrenmeye Başla</button>
         </div>
     </div>
 </div>
 
-<div class="mt-5 p-3 border rounded-3" id="test-buttons-section" style="display: none;">
-    <h4>Geliştirici Test Butonları</h4>
-    <button type="button" class="btn btn-primary">Örnek Bootstrap Butonu</button>
-    <button type="button" class="btn btn-success ms-2" onclick="testSuccessMessage()">Başarı Mesajı Test</button>
-    <button type="button" class="btn btn-danger ms-2" onclick="testErrorMessage()">Hata Mesajı Test</button>
-    <button type="button" class="btn btn-warning ms-2" onclick="testApiError()">API Hata Testi (404)</button>
+<!-- "Neden GoalCast?" Bölümü -->
+<div class="py-5 bg-white rounded-3 mb-5 shadow-sm why-goalcast-section">
+    <div class="container text-center">
+        <h2 class="mb-5 display-6">Neden GoalCast'i Seçmelisiniz?</h2>
+        <div class="row">
+            <div class="col-lg-4">
+                <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                <h4>Güvenli ve Adil</h4>
+                <p>Şeffaf puanlama sistemimiz ve güvenli altyapımız ile adil bir oyun deneyimi sunuyoruz.</p>
+            </div>
+            <div class="col-lg-4">
+                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                <h4>Heyecan Verici Rekabet</h4>
+                <p>Liderlik tablosunda yükselin, en iyi tahminci olduğunuzu kanıtlayın ve ödüller kazanın (gelecekte!).</p>
+            </div>
+            <div class="col-lg-4">
+                <i class="fas fa-mobile-alt fa-3x mb-3"></i>
+                <h4>Her Yerden Erişim</h4>
+                <p>Modern ve duyarlı tasarımımız sayesinde GoalCast'e telefon, tablet veya bilgisayarınızdan erişin.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Nasıl Çalışır Modalı (Eğer her sayfada ortak değilse, home.html içinde kalabilir) -->
+<!-- Nasıl Çalışır Modalı (İçerik güncellendi) -->
 <div class="modal fade" id="howToPlayModal" tabindex="-1" aria-labelledby="howToPlayModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"> <!-- modal-xl eklendi -->
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="howToPlayModalLabel">GoalCast Nasıl Çalışır?</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="howToPlayModalLabel"><i class="fas fa-info-circle me-2"></i>GoalCast Nasıl Çalışır? Adım Adım Rehber</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <p>GoalCast, futbol maçları için bir tahmin platformudur.</p>
-        <ol>
-          <li><strong>Kayıt Olun ve Giriş Yapın:</strong> Platformu kullanmaya başlamak için basit bir kayıt işlemi yapın.</li>
-          <li><strong>Maçları İnceleyin:</strong> "#/matches" sayfasından yaklaşan maçları ve ligleri görüntüleyin.</li>
-          <li><strong>Tahmininizi Yapın:</strong> <!-- ... (içerik aynı) ... --></li>
-          <li><strong>Sonuçları Bekleyin:</strong> Maçlar tamamlandıktan sonra tahminleriniz değerlendirilir.</li>
-          <li><strong>Puan Kazanın:</strong> <!-- ... (içerik aynı) ... --></li>
-          <li><strong>Profilinizi Takip Edin:</strong> "#/dashboard" sayfasından toplam puanınızı görebilirsiniz.</li>
-          <li><strong>Tahminlerinizi Gözden Geçirin:</strong> "#/predictions" sayfasından tüm tahminlerinizi görebilirsiniz.</li>
-        </ol>
-        <p>İyi eğlenceler ve bol şans!</p>
+      <div class="modal-body p-4">
+        <p class="lead text-center mb-4">GoalCast ile futbol tahminleri dünyasına adım atın ve bilginizi puana dönüştürün!</p>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">1</span>Kayıt Ol ve Giriş Yap</h5>
+                <p>Platformun tüm özelliklerinden faydalanmak için <a href="#/register" class="fw-bold">hızlıca kayıt olun</a>. Ardından <a href="#/login" class="fw-bold">giriş yaparak</a> futbol tahmin serüveninize başlayın. E-posta adresinizi doğrulayarak hesabınızı güvence altına almayı unutmayın!</p>
+            </div>
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">2</span>Maçları Keşfet</h5>
+                <p><a href="#/leagues" class="fw-bold">Ligler</a> sayfasından favori liglerinizi seçin veya <a href="#/matches" class="fw-bold">Maçlar</a> bölümünden tüm yaklaşan karşılaşmaları inceleyin. Detaylı filtreleme seçenekleriyle aradığınız maçı kolayca bulun.</p>
+            </div>
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">3</span>Tahminini Yap</h5>
+                <p>Bir maç seçtikten sonra "Tahmin Yap" butonuna tıklayın. Ev sahibi ve deplasman takımları için skor tahminlerinizi girin. Ardından, bu tahmin için ne kadar puan (<strong class="text-warning">100</strong> ile <strong class="text-warning">1000</strong> arasında) riske atmak istediğinizi belirleyin.</p>
+            </div>
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">4</span>Puanlama Sistemi</h5>
+                <p>Doğru tahminlerinizle puan kazanın:</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i><strong>Doğru Skor:</strong> Maç skorunu tam olarak bilirseniz, yatırdığınız puanın <strong class="text-success">2 katını net kâr</strong> edersiniz.</li>
+                    <li><i class="fas fa-check text-success me-2"></i><strong>Doğru Sonuç:</strong> Maçın galibini veya beraberliği doğru tahmin eder (skor yanlış olsa bile), yatırdığınız puanın <strong class="text-success">1 katını net kâr</strong> edersiniz.</li>
+                    <li><i class="fas fa-times-circle text-danger me-2"></i><strong>Yanlış Sonuç:</strong> Tahmininiz tutmazsa, yatırdığınız puanı kaybedersiniz.</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">5</span>Sonuçları Takip Et</h5>
+                <p>Maçlar tamamlandıktan sonra skorlar sisteme işlenir ve tahminleriniz otomatik olarak değerlendirilir. <a href="#/predictions" class="fw-bold">Tahminlerim</a> sayfasından tüm tahminlerinizin durumunu görebilirsiniz.</p>
+            </div>
+            <div class="col-md-6">
+                <h5><span class="badge bg-primary rounded-pill me-2">6</span>Liderlik Tablosunda Yüksel!</h5>
+                <p>Kazandığınız puanlarla <a href="#/leaderboard" class="fw-bold">Liderlik Tablosu</a>'nda diğer oyuncularla yarışın ve futbol bilginizi kanıtlayın!</p>
+            </div>
+        </div>
+        <hr class="my-4">
+        <p class="text-center text-muted">Unutmayın, futbol sürprizlerle doludur! Stratejinizi belirleyin, riskinizi yönetin ve eğlencenin tadını çıkarın.</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anladım</button>
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Harika, Anladım!</button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Geliştirici Test Butonları -->
+<div class="mt-5 p-3 border rounded-3" id="test-buttons-section" style="display: none;">
+    <h4 class="text-muted">Geliştirici Test Butonları</h4>
+    <p><small>Bu bölüm sadece yerel geliştirme sırasında görünür.</small></p>
+    <button type="button" class="btn btn-outline-success ms-2" onclick="testSuccessMessage()">Başarı Mesajı</button>
+    <button type="button" class="btn btn-outline-danger ms-2" onclick="testErrorMessage()">Hata Mesajı</button>
+    <button type="button" class="btn btn-outline-warning ms-2" onclick="testApiError()">API Hata Testi</button>
+    <div id="test-message-area" class="mt-3"></div>
 </div>

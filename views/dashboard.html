@@ -7,25 +7,33 @@
         <div class="card shadow-sm">
             <div class="card-header">Kullanıcı Profil Bilgileri</div>
             <div class="card-body">
-                <div id="user-profile-loading" class="text-center" style="display: none;">
+                <div id="user-profile-loading" class="text-center" style="display: block;"> <!-- Başlangıçta görünür olsun -->
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Yükleniyor...</span>
                     </div>
                 </div>
-                <div id="user-profile-data">
-                    <p><strong>Kullanıcı ID:</strong> <span id="profile-id">...</span></p>
-                    <p><strong>Kullanıcı Adı:</strong> <span id="profile-username">...</span></p>
-                    <p><strong>E-posta:</strong> <span id="profile-email">...</span></p>
-                    <p><strong>Toplam Puan:</strong> <span id="profile-totalPoints">...</span></p>
+                <div id="user-profile-data" style="display: none;"> <!-- Başlangıçta gizli -->
+                    <p><strong>Kullanıcı ID:</strong> <span id="profile-id"></span></p>
+                    <p><strong>Kullanıcı Adı:</strong> <span id="profile-username"></span></p>
+                    <p>
+                        <strong>E-posta:</strong> <span id="profile-email"></span>
+                        <span id="email-verification-status-badge" class="ms-2"></span> <!-- E-posta doğrulama rozeti -->
+                    </p>
+                    <p><strong>Toplam Puan:</strong> <span id="profile-totalPoints"></span></p>
                 </div>
                 <div id="user-profile-error" class="alert alert-danger" style="display: none;">
                     Profil bilgileri yüklenirken bir hata oluştu.
                 </div>
             </div>
+            <!-- E-posta doğrulama aksiyon alanı -->
+            <div class="card-footer" id="email-verification-action-area" style="display: none; padding: 0.75rem 1rem;">
+                 <!-- Doğrulama butonu buraya JS ile eklenecek -->
+            </div>
         </div>
         <div class="mt-4">
             <h4>Diğer İşlemler</h4>
             <a href="#/predictions" class="btn btn-info">Tahminlerimi Görüntüle</a>
+            <!-- Başka linkler veya işlemler buraya eklenebilir -->
         </div>
     </div>
 </div>

@@ -6,235 +6,294 @@
 /* --- GENEL STİLLER --- */
 body {
     font-family: 'Open Sans', sans-serif;
-    background-color: #f8f9fa; /* Açık gri arka plan */
-    color: #343a40; /* Koyu gri metin */
-    line-height: 1.6;
+    background-color: #eef2f7; /* Daha yumuşak bir açık mavi-gri arka plan */
+    color: #495057; /* Daha yumuşak bir ana metin rengi */
+    line-height: 1.7;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-bottom: 80px; /* FOOTER YÜKSEKLİĞİ KADAR VEYA BİRAZ FAZLA - BU DEĞERİ AYARLAYIN */
+    padding-top: 70px; /* Navbar yüksekliği kadar (yaklaşık) */
     margin: 0;
 }
 
-main.container, /* Eğer <main> kullanıyorsanız */
-div.container:not(nav > .container):not(footer > .container) { /* Veya doğrudan body'nin altındaki container'lar (navbar ve footer hariç) */
-    flex-grow: 1; /* İçeriğin footer'ı aşağı itmesini sağlar */
+main.container,
+div.container:not(nav > .container):not(footer > .container) {
+    flex-grow: 1;
+    padding-top: 2rem; /* İçeriğe üstten boşluk */
+    padding-bottom: 2rem; /* İçeriğe alttan boşluk */
 }
-
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    color: #212529;
+    font-weight: 700; /* Başlıkları daha belirgin yapalım */
+    color: #2c3e50; /* Koyu mavi-gri, daha modern */
 }
 
 a {
-    color: #0d6efd; /* Bootstrap primary */
+    color: #007bff; /* Bootstrap primary */
     text-decoration: none;
+    transition: color 0.2s ease-in-out;
 }
 
 a:hover {
-    color: #0a58ca;
-    text-decoration: none; /* Hover'da da alt çizgi olmasın istiyorsanız veya underline kalsın */
+    color: #0056b3;
+    text-decoration: none;
 }
 
 /* --- NAVBAR --- */
 nav.navbar.bg-dark {
     padding-top: 0.8rem;
     padding-bottom: 0.8rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Gölgeyi biraz daha belirgin yap */
+    position: fixed; /* Navbar'ı üste sabitle */
+    width: 100%;
+    top: 0;
+    z-index: 1030; /* Diğer elementlerin üzerinde kalması için */
 }
 
 nav.navbar .navbar-brand {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.6rem; /* Biraz daha büyük */
 }
 
 nav.navbar .nav-link {
     font-weight: 500;
-    transition: color 0.2s ease-in-out;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Arkaplan geçişi de ekle */
+    padding: 0.5rem 1rem; /* Dikey padding'i azalt, yatayı koru */
+    border-radius: 0.25rem; /* Hafif yuvarlak köşeler */
+    margin: 0 0.25rem; /* Linkler arasına boşluk */
 }
 
 nav.navbar .nav-link.active,
 nav.navbar .nav-link:hover {
-    color: #ffffff !important; /* Daha parlak */
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.1); /* Hover/active için hafif arkaplan */
+}
+nav.navbar .nav-link.disabled { /* Puan gösterimi için */
+    color: #ffc107 !important; /* text-warning rengi */
+    background-color: transparent !important;
+    cursor: default !important;
+}
+nav.navbar .nav-link.disabled:hover {
+    background-color: transparent !important;
 }
 
-.dropdown-menu {
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-radius: 0.3rem;
-}
-.dropdown-menu-dark .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
 
 /* --- BUTONLAR --- */
 .btn {
     transition: all 0.25s ease-in-out;
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); */ /* Daha sade bir görünüm için kaldırılabilir */
     border-radius: 0.3rem;
-    font-weight: 500;
+    font-weight: 600; /* Buton yazılarını biraz daha kalın yap */
+    padding: 0.6rem 1.2rem; /* Buton padding'lerini ayarla */
+    letter-spacing: 0.5px; /* Harf aralığı */
 }
 
 .btn:hover {
-    transform: translateY(-1px);
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    transform: translateY(-2px); /* Hover'da daha belirgin kalkma */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background-color: #007bff;
+    border-color: #007bff;
 }
 .btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.btn-outline-light:hover {
+    color: #212529; /* Koyu metin rengi */
 }
 
-/* --- FORMLAR --- */
-.form-control:focus, .form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
 
-/* --- KARTLAR (Genel ve Maç Kartları) --- */
+/* --- KARTLAR (Genel) --- */
 .card {
-    border: 1px solid #e0e0e0; /* Hafif bir border */
-    border-radius: 0.5rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    background-color: #fff; /* Kartların arka planı beyaz */
+    border: none; /* Border'ı kaldır, gölge ile ayrım sağla */
+    border-radius: 0.75rem; /* Daha yuvarlak köşeler */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07); /* Başlangıç gölgesi */
 }
 
 .card:hover {
-    /* transform: translateY(-3px); */ /* Daha subtle bir hover efekti */
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Hover'da daha belirgin gölge */
 }
 
 .card-header {
-    background-color: #f8f9fa; /* Bootstrap'in hafif gri rengi */
-    border-bottom: 1px solid #e0e0e0;
-    font-weight: 600;
-    padding: 0.75rem 1.25rem;
-}
-
-#matches-list .card-header { /* Maç kartı header'ı için özel */
-    font-size: 0.9rem;
-    background-color: #e9ecef; 
-}
-    
-#matches-list .card-header span {
-    font-weight: 600;
-}
-
-#matches-list .card-title {
-    font-size: 1.2rem; /* Takım adları */
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-}
-#matches-list .card-text {
-    font-size: 0.9rem;
-}
-#matches-list .card-text strong {
-    margin-right: 0.4em;
-}
-    
-#matches-list .card-text.fs-4 { /* Skor */
-    color: #198754;
-    margin-top: 0.5rem;
-    margin-bottom: 0.25rem;
-}
-
-#matches-list .card-footer {
-    background-color: transparent; /* Footer arka planını kaldıralım */
-    border-top: 1px solid #e0e0e0;
-    padding: 0.75rem 1.25rem;
-}
-#matches-list .predict-btn {
-    font-weight: 500;
-    background-color: #ff9800; /* Canlı bir turuncu */
-    border-color: #ff9800;
-    color: white;
-}
-#matches-list .predict-btn:hover {
-    background-color: #f57c00;
-    border-color: #ef6c00;
-}
-
-/* --- TABLOLAR (Admin sayfaları için) --- */
-.table {
-    border-radius: 0.3rem;
-    overflow: hidden; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.table thead th {
-    background-color: #495057; /* Biraz daha açık koyu gri */
-    color: #fff;
-    border-bottom-width: 0;
-    font-weight: 600;
-    white-space: nowrap; /* Başlıkların tek satırda kalmasını sağla */
-}
-
-.table tbody tr:hover {
     background-color: #f8f9fa;
-}
-
-.table td .btn {
-    margin-right: 0.3rem;
-    margin-bottom: 0.3rem;
-}
-.table td .btn:last-child {
-    margin-right: 0;
-}
-.table td .btn i { /* Buton içindeki ikonlara biraz sağ boşluk */
-    margin-right: 0.25rem;
-}
-
-
-/* --- MODALLAR --- */
-.modal-content {
-    border-radius: 0.5rem;
-    border: none;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.modal-title {
+    border-bottom: 1px solid #e9ecef;
     font-weight: 600;
+    padding: 0.85rem 1.25rem;
+    border-top-left-radius: 0.75rem; /* Header'a da border-radius */
+    border-top-right-radius: 0.75rem;
 }
 
 /* --- FOOTER --- */
 footer.bg-dark {
-    padding: 1.5rem 0; /* Üst ve alt padding */
-    /* fixed-bottom ile kullanılıyorsa margin-top:auto gereksiz */
+    padding: 2rem 0;
+    margin-top: auto; /* main.container flex-grow:1 ile birlikte çalışır */
+    background-color: #2c3e50 !important; /* Daha modern koyu mavi */
 }
 
-/* --- ANA SAYFA ÖZEL --- */
-.jumbotron-custom { /* index.html'deki p-5... div'ine bu sınıfı verebilirsiniz */
-    background-color: #eef2f7; /* Daha yumuşak bir mavi-gri */
-    padding: 4rem 2rem;
+/* --- ANA SAYFA ÖZEL STİLLER --- */
+.jumbotron-custom {
+    /* Arkaplan resmini direkt HTML'e style olarak eklemek daha esnek olabilir veya JS ile */
+    /* background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1511806986809-a47c173680e3?auto=format&fit=crop&w=1400&q=80') no-repeat center center; */
+    /* background-size: cover; */
+    background-color: #343a40; /* Eğer resim yüklenmezse veya resimsiz istenirse */
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); /* Metin gölgesini ayarla */
+    padding: 5rem 2rem; /* Daha fazla padding */
+    border-radius: 0.75rem; /* Yuvarlak köşeler */
+    margin-bottom: 3rem; /* Alt boşluk */
 }
 
 .jumbotron-custom h1 {
-    color: #2c3e50; /* Koyu mavi-gri */
+    font-size: calc(1.8rem + 2.5vw); /* Ekran boyutuna göre değişen başlık */
+    font-weight: 700;
+    color: #fff; /* Jumbotron başlığı beyaz */
+    margin-bottom: 1rem;
+}
+@media (min-width: 1200px) {
+    .jumbotron-custom h1 {
+        font-size: 4.5rem; /* Büyük ekranlarda max boyut */
+    }
 }
 
+.jumbotron-custom p.lead { /* class="lead" eklenmişti HTML'de */
+    font-size: 1.3rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+#index-cta-buttons .btn {
+    padding: 0.8rem 2rem; /* Butonlara daha fazla padding */
+    font-size: 1.1rem;
+    margin: 0.5rem; /* Butonlar arasına boşluk */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+#index-cta-buttons .btn-primary {
+    background-color: #ffc107; /* Ana CTA butonu için dikkat çekici renk (Bootstrap warning) */
+    border-color: #ffc107;
+    color: #212529; /* Koyu metin */
+}
+#index-cta-buttons .btn-primary:hover {
+    background-color: #ffca2c;
+    border-color: #ffc107;
+}
+
+
 .index-feature-card {
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-    height: 100%; /* Kartların aynı yükseklikte olmasını sağlar */
+    padding: 2.5rem; /* Daha fazla iç boşluk */
+    border-radius: 0.75rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: center; /* Kart içeriğini ortala */
 }
-.index-feature-card.bg-dark {
-    color: white;
+
+.index-feature-card .icon-container { /* İkonlar için bir container */
+    font-size: 3rem; /* İkon boyutu */
+    margin-bottom: 1.5rem;
+    line-height: 1;
 }
+
+.index-feature-card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    color: #007bff; /* Varsayılan özellik kartı başlık rengi */
+}
+
+/* Özellik kartları için farklı arkaplan ve başlık renkleri */
+.index-feature-card.bg-primary h2, 
+.index-feature-card.bg-primary .icon-container i {
+    color: #fff; /* Primary arkaplanda başlık ve ikon beyaz */
+}
+.index-feature-card.bg-primary p {
+    color: rgba(255,255,255,0.9);
+}
+
+
+.index-feature-card.bg-secondary h2,
+.index-feature-card.bg-secondary .icon-container i {
+    color: #fff;
+}
+.index-feature-card.bg-secondary p {
+    color: rgba(255,255,255,0.9);
+}
+
+
+.index-feature-card.bg-light h2 {
+    color: #007bff; /* Açık arkaplanda başlık mavi */
+}
+.index-feature-card.bg-light .icon-container i {
+    color: #007bff; /* Açık arkaplanda ikon mavi */
+}
+
+
 .index-feature-card .btn {
-    margin-top: 1rem;
+    margin-top: auto; /* Butonu kartın en altına iter */
+    align-self: center; /* Butonu yatayda ortalar */
+}
+
+/* "Neden GoalCast?" Bölümü */
+.why-goalcast-section {
+    padding: 4rem 0;
+}
+.why-goalcast-section h2 {
+    margin-bottom: 3rem;
+}
+.why-goalcast-section .col-lg-4 {
+    margin-bottom: 2rem;
+}
+.why-goalcast-section i {
+    margin-bottom: 1rem;
+    color: #007bff; /* Ana renk */
+}
+.why-goalcast-section h4 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Nasıl Çalışır Modalı */
+.modal-header.bg-dark {
+    border-bottom: 1px solid #495057;
+}
+.modal-body h5 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    color: #007bff;
+}
+.modal-body hr {
+    margin: 1.5rem 0;
+}
+
+/* Geliştirici Test Butonları */
+#test-buttons-section {
+    background-color: #f1f3f5;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+#test-buttons-section h4 {
+    color: #6c757d;
+}
+
+/* Navbar bildirim ve okunmuş stilleri (zaten vardı, burada da kalsın) */
+#notifications-dropdown-menu a.dropdown-item.text-muted {
+    color: #adb5bd !important; /* Okunmuşlar için biraz daha soluk */
+}
+#notifications-dropdown-menu a.dropdown-item.text-muted .fw-bold,
+#notifications-dropdown-menu a.dropdown-item.text-muted .small { /* Başlık ve mesaj */
+    color: #adb5bd !important;
+}
+.list-group-item.list-group-item-light.text-muted {
+    color: #999 !important; 
+    background-color: #fdfdfd !important;
+}
+.list-group-item.list-group-item-light.text-muted .fw-bold {
+    color: #777 !important;
 }
