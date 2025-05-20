@@ -13,12 +13,12 @@ function showMessage(elementId, message, type = 'info') {
         const alertClass = `alert-${type}`;
         messageContainer.innerHTML = `
             <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                ${message}
+                ${escapeHTML(message)} {/* Mesajı da escape edelim */}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
     } else {
-        console.warn(`Message container with ID '${elementId}' not found.`);
+        console.warn(`Message container with ID '${elementId}' not found. Message: ${message}`);
     }
 }
 
@@ -40,7 +40,9 @@ function clearMessage(elementId) {
 function showSpinner(spinnerId) {
     const spinner = document.getElementById(spinnerId);
     if (spinner) {
-        spinner.style.display = 'block'; // Veya 'inline-block' vs.
+        spinner.style.display = 'block';
+    } else {
+        console.warn(`Spinner with ID '${spinnerId}' not found.`);
     }
 }
 
@@ -52,16 +54,10 @@ function hideSpinner(spinnerId) {
     const spinner = document.getElementById(spinnerId);
     if (spinner) {
         spinner.style.display = 'none';
+    } else {
+        console.warn(`Spinner with ID '${spinnerId}' not found to hide.`);
     }
 }
-
-/**
- * Verilen string içindeki HTML özel karakterlerini escape eder.
- * XSS saldırılarını önlemeye yardımcı olur.
- * @param {string} str - Escape edilecek string.
- * @returns {string} - Escape edilmiş string.
- */
-// js/ui.js - escapeHTML fonksiyonu içinde
 
 function escapeHTML(str) {
     if (str === null || typeof str === 'undefined') return '';

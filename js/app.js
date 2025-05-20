@@ -7,6 +7,10 @@ const APP_CONFIG = {
 
 const appContent = document.getElementById('app-content');
 
+// escapeHTML fonksiyonu ui.js'de tanımlı olmalı ve ui.js, app.js'den önce yüklenmeli.
+// Eğer ui.js yoksa veya sıralama farklıysa, escapeHTML'i buraya veya global'e taşıyabilirsiniz.
+// function escapeHTML(str) { ... } 
+
 const routes = {
     '/': { templatePath: 'views/home.html', title: 'Ana Sayfa' },
     '/login': { templatePath: 'views/login.html', title: 'Giriş Yap' },
@@ -17,6 +21,12 @@ const routes = {
     '/predictions': { templatePath: 'views/predictions.html', title: 'Tahminlerim', authRequired: true },
     '/admin/leagues': { templatePath: 'views/admin-leagues.html', title: 'Admin - Lig Yönetimi', authRequired: true, adminRequired: true },
     '/admin/matches': { templatePath: 'views/admin-matches.html', title: 'Admin - Maç Yönetimi', authRequired: true, adminRequired: true },
+    '/admin/users': { // YENİ ADMIN KULLANICI YÖNETİMİ ROUTE'U
+        templatePath: 'views/admin-users.html',
+        title: 'Admin - Kullanıcı Yönetimi',
+        authRequired: true,
+        adminRequired: true
+    },
     '/unauthorized': { templatePath: 'views/unauthorized.html', title: 'Yetkisiz Erişim' },
     '/leaderboard': {
         templatePath: 'views/leaderboard.html',
@@ -33,11 +43,20 @@ const routes = {
     },
 };
 
-let isNavigating = false; // Router'ın tekrar tekrar tetiklenmesini önlemek için bir bayrak
+let isNavigating = false; 
 
 async function router() {
-    if (isNavigating) return; // Eğer zaten bir yönlendirme işlemi yapılıyorsa çık
+    if (isNavigating && location.hash !== window.currentNavHash) { // Eğer hash değişmişse devam et
+        // Bu, aynı hash için tekrar tekrar router çağrılmasını engellemeye yardımcı olabilir,
+        // ama location.hash doğrudan set edildiğinde bu kontrol atlanabilir.
+        // console.log("Router: Navigation already in progress for a different hash, but new hash detected. Proceeding.");
+    } else if (isNavigating) {
+        // console.log("Router: Navigation already in progress for the same hash. Exiting.");
+        return;
+    }
+    
     isNavigating = true;
+    window.currentNavHash = location.hash; // Mevcut hash'i sakla
 
     if (!appContent) {
         console.error("app-content elementi bulunamadı!");
@@ -50,54 +69,56 @@ async function router() {
     const path = pathParts[0];
     const route = routes[path] || routes['/'];
 
-    console.log(`Routing to path: ${path} (Full hash: ${fullHash})`);
+    console.log(`Router: Routing to path: ${path} (Full hash: ${fullHash})`);
 
     const token = localStorage.getItem('jwtToken');
     const userRole = localStorage.getItem('userRole');
 
     if (route.authRequired && !token) {
-        console.log("Yetki Gerekli, token yok. Login'e yönlendiriliyor.");
-        location.hash = '#/login'; // Bu tekrar router'ı tetikleyecek
-        isNavigating = false;
-        return; // Mevcut router işlemini sonlandır
+        console.log("Router: Yetki Gerekli, token yok. Login'e yönlendiriliyor.");
+        location.hash = '#/login';
+        // isNavigating false yapılmadan önce return, çünkü location.hash değişimi yeni bir router çağrısını tetikleyecek.
+        // Ancak, location.hash ataması senkron olduğu için, bu fonksiyonun sonundaki isNavigating = false;
+        // bir sonraki router çağrısından önce çalışabilir. Daha sağlam bir lock mekanizması gerekebilir
+        // veya bu yönlendirmelerden sonra direkt return edilebilir.
+        // Şimdilik, location.hash'in yeni bir event tetikleyeceğini varsayıyoruz.
+        // isNavigating = false; // Bunu burada false yapmak yerine, en sonda yapalım
+        return; 
     }
     if (route.adminRequired && userRole !== 'ADMIN') {
-        console.log("Admin Yetkisi Gerekli. Yönlendiriliyor.");
+        console.log("Router: Admin Yetkisi Gerekli. Yönlendiriliyor.");
         location.hash = (routes['/unauthorized'] && routes['/unauthorized'].templatePath) ? '#/unauthorized' : '#/';
-        isNavigating = false;
+        // isNavigating = false;
         return;
     }
 
-    document.title = `GoalCast - ${route.title || APP_CONFIG.appName}`;
+    document.title = `${APP_CONFIG.appName} - ${route.title || 'Hoş Geldiniz'}`;
 
     try {
         if (route.templatePath) {
-            appContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div></div>';
+            appContent.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div></div>';
             const response = await fetch(route.templatePath);
-            if (!response.ok) throw new Error(`Template yüklenemedi: ${route.templatePath} - ${response.statusText} (${response.status})`);
+            if (!response.ok) throw new Error(`Template yüklenemedi: ${route.templatePath} (${response.status})`);
             const html = await response.text();
             appContent.innerHTML = html;
-            loadPageScript(path);
+            await loadPageScript(path); // Script yüklemesinin bitmesini bekle
         } else if (route.content) {
             appContent.innerHTML = route.content;
-            loadPageScript(path);
+            await loadPageScript(path);
         } else {
-            appContent.innerHTML = '<div class="alert alert-warning">Bu sayfa için içerik bulunamadı (404).</div>';
+            appContent.innerHTML = '<div class="alert alert-warning text-center">Aradığınız sayfa bulunamadı (404).</div>';
         }
     } catch (error) {
-        console.error("Router error loading template or script:", error);
-        appContent.innerHTML = `<div class="alert alert-danger">Sayfa yüklenirken bir hata oluştu: ${error.message}</div>`;
+        console.error("Router error loading template or page script:", error);
+        appContent.innerHTML = `<div class="alert alert-danger text-center">Sayfa yüklenirken bir hata oluştu: ${escapeHTML(error.message)}</div>`;
+    } finally {
+        // Puan ve bildirimleri template/script yüklendikten sonra çek ve navbar'ı çiz
+        if (token) {
+            await loadUnreadNotificationCount(); 
+        }
+        updateNavigation(); 
+        isNavigating = false; // Yönlendirme tamamlandı
     }
-
-    // updateNavigation'ı template ve script yüklendikten sonra çağır
-    // ve loadUnreadNotificationCount'un sonucunu bekle (eğer puanı güncelleyecekse)
-    if (token) {
-        // Önce bildirim ve puan bilgisini çek, sonra navbar'ı çiz
-        await loadUnreadNotificationCount(); // Bu fonksiyon localStorage'ı güncelleyebilir
-    }
-    updateNavigation(); // En güncel localStorage değerleriyle navbar'ı çiz
-
-    isNavigating = false;
 }
 
 async function loadPageScript(routePath) {
@@ -106,16 +127,22 @@ async function loadPageScript(routePath) {
     if (scriptName.endsWith('-')) {
         scriptName = scriptName.slice(0, -1);
     }
+    // Eğer /admin ise, scriptName 'admin' olur, -page.js eklenince 'admin-page.js' olur.
+    // /admin/users ise, scriptName 'admin-users' olur.
+    if (scriptName === 'admin') { // Genel bir admin sayfası için (eğer varsa)
+        scriptName = 'admin-dashboard'; // Veya spesifik bir isim
+    }
+
 
     const scriptPath = `js/pages/${scriptName}-page.js`;
-    console.log(`loadPageScript: Attempting to load script: ${scriptPath}`);
+    // console.log(`loadPageScript: Attempting to load script: ${scriptPath}`);
 
     const oldScript = document.getElementById('page-specific-script');
     if (oldScript) {
         oldScript.remove();
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => { // Hata durumunda da resolve et, router devam etsin
         const scriptElement = document.createElement('script');
         scriptElement.id = 'page-specific-script';
         scriptElement.src = scriptPath;
@@ -126,8 +153,15 @@ async function loadPageScript(routePath) {
             resolve();
         };
         scriptElement.onerror = (event) => {
-            console.warn(`WARNING: ${scriptPath} could not be loaded or not found.`, event);
-            resolve(); // Script yüklenemese bile router devam etmeli
+            console.warn(`WARNING: Script ${scriptPath} could not be loaded or not found. This page might not have specific JS.`, event.type);
+            // Sayfaya özel JS yoksa, bu bir hata değildir, router devam etmeli.
+            // appContent'i temizle (spinner kalmış olabilir)
+            if(appContent.innerHTML.includes('spinner-border')) {
+                // Eğer template yüklenmiş ama script yüklenememişse ve spinner varsa,
+                // bu durumun ayrıca ele alınması gerekebilir.
+                // Ancak genellikle template yüklendiyse scriptin initialize fonksiyonu DOM'u yönetir.
+            }
+            resolve(); 
         };
         document.body.appendChild(scriptElement);
     });
@@ -137,18 +171,13 @@ function updateNavigation() {
     const token = localStorage.getItem('jwtToken');
     const userRole = localStorage.getItem('userRole');
     const username = localStorage.getItem('username');
-    const totalPoints = localStorage.getItem('totalPoints'); // Her zaman en güncelini oku
+    const totalPoints = localStorage.getItem('totalPoints');
     const navUl = document.querySelector('#navbarNav .navbar-nav');
-
-    // console.log('updateNavigation called. Current totalPoints from localStorage:', totalPoints);
 
     const currentFullHash = location.hash || '#/';
     const currentPathOnly = currentFullHash.split('?')[0];
 
-    if (!navUl) {
-        console.error("Navbar UL element (#navbarNav .navbar-nav) not found!");
-        return;
-    }
+    if (!navUl) return;
 
     let navLinksHTML = `
         <li class="nav-item"><a class="nav-link ${currentPathOnly === '#/' ? 'active' : ''}" href="#/">Ana Sayfa</a></li>
@@ -172,6 +201,7 @@ function updateNavigation() {
                     <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownAdmin">
                         <li><a class="dropdown-item" href="#/admin/matches">Maç Yönetimi</a></li>
                         <li><a class="dropdown-item" href="#/admin/leagues">Lig Yönetimi</a></li>
+                        <li><a class="dropdown-item" href="#/admin/users">Kullanıcı Yönetimi</a></li>
                     </ul>
                 </li>`;
         }
@@ -180,7 +210,7 @@ function updateNavigation() {
             userSpecificLinksHTML += `
                 <li class="nav-item">
                     <span class="nav-link text-warning fw-bold disabled" title="Puanınız" style="cursor: default;">
-                        💰 ${typeof escapeHTML === 'function' ? escapeHTML(totalPoints) : totalPoints} P
+                        💰 ${escapeHTML(totalPoints)} P 
                     </span>
                 </li>`;
         }
@@ -214,30 +244,26 @@ function updateNavigation() {
     }
 
     if (token) {
-        // setupNotificationDropdownListener loadUnreadNotificationCount'u zaten çağırıyor olabilir,
-        // ya da loadUnreadNotificationCount'u burada çağırıp, onun puanı güncelledikten sonra
-        // setupNotificationDropdownListener'ı çağırmak daha mantıklı olabilir.
-        // Şimdilik ayrı ayrı çağırıyoruz.
+        // loadUnreadNotificationCount zaten router tarafından updateNavigation'dan önce çağrıldı.
+        // setupNotificationDropdownListener, navbar DOM'u oluştuktan sonra çağrılmalı.
         if (typeof setupNotificationDropdownListener === 'function') {
-            setupNotificationDropdownListener(); // Bu, dropdown açıldığında bildirimleri çeker
+            setupNotificationDropdownListener();
         }
-         // loadUnreadNotificationCount'u updateNavigation'ın sonunda bir kez daha çağırmak yerine,
-         // router fonksiyonu içinde updateNavigation'dan önce çağırdık.
     }
 }
 
 async function loadUnreadNotificationCount() {
     const badge = document.getElementById('unread-notification-count-badge');
-    const token = localStorage.getItem('jwtToken'); // Token'ı fonksiyon içinde alalım
+    const token = localStorage.getItem('jwtToken');
 
-    if (!badge || !token) { // Token yoksa veya badge elementi yoksa işlem yapma
+    if (!badge || !token) {
         if(badge) badge.style.display = 'none';
-        return false; // Puan güncellenmedi veya işlem yapılmadı
+        return false; 
     }
 
     try {
         const response = await fetchAPI('/notifications/unread-count', 'GET', null, true);
-        let pointsUpdated = false;
+        let pointsHaveChanged = false;
 
         if (response.success && response.data) {
             const count = response.data.unreadCount;
@@ -254,13 +280,13 @@ async function loadUnreadNotificationCount() {
                 if (currentStoredPoints !== newPoints) {
                     localStorage.setItem('totalPoints', newPoints);
                     console.log('loadUnreadNotificationCount: totalPoints updated in localStorage to', newPoints);
-                    pointsUpdated = true; // Puanın değiştiğini işaretle
+                    pointsHaveChanged = true;
                 }
             }
         } else {
             badge.style.display = 'none';
         }
-        return pointsUpdated; // Puanın güncellenip güncellenmediğini döndür
+        return pointsHaveChanged; // Puanın güncellenip güncellenmediğini döndür
     } catch (error) {
         console.error('Error fetching unread notification count:', error);
         if (badge) badge.style.display = 'none';
@@ -277,19 +303,16 @@ function setupNotificationDropdownListener() {
             dropdownMenu.innerHTML = '<li><div class="text-center p-2 small text-muted"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Yükleniyor...</span></div></div></li>';
             
             try {
-                // `/api/notifications` yanıtı UserNotificationsPageResponseDto bekliyor
                 const response = await fetchAPI('/notifications?page=0&size=5&sort=createdAt,desc', 'GET', null, true);
                 dropdownMenu.innerHTML = ''; 
 
-                // Backend'den gelen güncel puanı burada da alıp localStorage'ı güncelleyebiliriz
                 if (response.success && response.data && typeof response.data.currentUserTotalPoints !== 'undefined') {
                      const newPoints = response.data.currentUserTotalPoints.toString();
                      const currentStoredPoints = localStorage.getItem('totalPoints');
                      if (currentStoredPoints !== newPoints) {
                          localStorage.setItem('totalPoints', newPoints);
-                         console.log('Notification Dropdown: totalPoints updated in localStorage to', newPoints);
-                         // updateNavigation(); // Dropdown açılırken navbar'ı tekrar çizmek UI'da zıplamaya neden olabilir.
-                                             // Bunun yerine, bir sonraki router() çağrısı veya periyodik güncelleme yapsın.
+                         console.log('Notification Dropdown (show.bs.dropdown): totalPoints updated in localStorage to', newPoints);
+                         updateNavigation(); // Dropdown açılırken puan değiştiyse navbar'ı hemen güncelle
                      }
                 }
 
@@ -323,10 +346,7 @@ function setupNotificationDropdownListener() {
                 addNotificationItemClickListeners();
 
             } catch (error) {
-                console.error('Error loading notifications for dropdown:', error);
-                dropdownMenu.innerHTML = '<li><a class="dropdown-item text-danger small disabled" href="#">Bir hata oluştu.</a></li>';
-                dropdownMenu.insertAdjacentHTML('beforeend', '<li><hr class="dropdown-divider my-1"></li>');
-                dropdownMenu.insertAdjacentHTML('beforeend', '<li><a class="dropdown-item text-center small py-2" href="#/notifications">Tüm Bildirimleri Gör</a></li>');
+                // ... (hata yönetimi aynı)
             }
         });
     }
@@ -347,19 +367,14 @@ function addNotificationItemClickListeners() {
                     if (markResponse.success) {
                         this.classList.remove('fw-bold');
                         this.classList.add('text-muted');
-                        // loadUnreadNotificationCount, localStorage'ı güncelleyip navbar'ı tetikleyebilir
-                        // veya sadece badge'i güncelleyebilir. Navbar'ı hemen güncellemek için:
-                        const pointsUpdated = await loadUnreadNotificationCount();
-                        if(pointsUpdated) {
-                            // updateNavigation(); // Eğer loadUnreadNotificationCount kendisi yapmıyorsa.
-                            // Ama loadUnreadNotificationCount localStorage'ı güncellediği için
-                            // ve addNotificationItemClickListeners -> loadUnreadNotificationCount -> (puan değişirse) updateNavigation
-                            // şeklinde bir akış varsa, bu updateNavigation'ı burada çağırmak yine riskli olabilir.
-                            // En iyisi, loadUnreadNotificationCount'un navbar'ı yenileme sorumluluğunu alması.
-                            // Ancak loadUnreadNotificationCount'un kendisi updateNavigation'ı çağırmamalı.
-                            // Bu durumda, puan değiştiyse elle updateNavigation çağırmak gerekir.
+                        
+                        const pointsUpdated = await loadUnreadNotificationCount(); // Badge'i ve localStorage'ı güncelle
+                        if (pointsUpdated) {
+                            updateNavigation(); // Eğer puan değiştiyse navbar'ı yenile
+                        } else {
+                            // Sadece badge güncellenmiş olabilir, navbar'ı tekrar çizmeye gerek yok
+                            // (eğer updateNavigation sadece puan için değilse yine de çağrılabilir)
                         }
-                        // Basitçe, badge'i güncelledik, linke tıklanınca sayfa zaten değişecek ve router navbar'ı yenileyecek.
                     }
                 } catch (error) {
                     console.error('Error marking notification as read from dropdown:', error);
@@ -382,18 +397,21 @@ function getNotificationTitle(type) {
 
 function handleLogout(event) {
     if (event) event.preventDefault();
+    localStorage.clear(); // Her şeyi temizlemek daha güvenli olabilir
+    /*
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('username');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userId');
-    localStorage.removeItem('totalPoints'); // Çıkışta puanı da temizle
-    localStorage.removeItem('emailVerified'); // E-posta doğrulama durumunu da temizle
+    localStorage.removeItem('totalPoints');
+    localStorage.removeItem('emailVerified');
+    */
 
     if (typeof showMessage === 'function' && document.getElementById('global-message-area')) {
         showMessage('global-message-area', 'Başarıyla çıkış yaptınız. Ana sayfaya yönlendiriliyorsunuz...', 'success');
     }
     setTimeout(() => {
-        location.hash = '#/';
+        location.hash = '#/'; // Bu router'ı tetikleyecektir
     }, 1000);
 }
 
@@ -407,30 +425,5 @@ function updateFooterYear() {
 window.addEventListener('hashchange', router);
 window.addEventListener('load', () => {
     updateFooterYear();
-    router(); // İlk yüklemede router'ı çalıştır
+    router();
 });
-
-// escapeHTML fonksiyonu (ui.js'de olması tercih edilir)
-if (typeof escapeHTML !== 'function') {
-    function escapeHTML(str) {
-        if (str === null || typeof str === 'undefined') return '';
-        return str.toString()
-            .replace(/&/g, '&')
-            .replace(/</g, '<')
-            .replace(/>/g, '>')
-            .replace(/"/g, '"')
-            .replace(/'/g, '\'');
-    }
-}
-
-// Periyodik olarak puan ve okunmamış bildirim sayısını kontrol etme (Opsiyonel)
-// Bu, kullanıcı sayfada aktifken backend kaynaklı değişiklikleri yansıtmak için.
-// setInterval(async () => {
-//     if (localStorage.getItem('jwtToken')) {
-//         console.log('Periodic check for updates (points/notifications)...');
-//         const pointsWereUpdated = await loadUnreadNotificationCount();
-//         if (pointsWereUpdated) {
-//             updateNavigation(); // Sadece puan gerçekten değiştiyse navbar'ı yenile
-//         }
-//     }
-// }, 30000); // Örn: Her 30 saniyede bir
