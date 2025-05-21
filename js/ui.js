@@ -69,6 +69,54 @@ function escapeHTML(str) {
         .replace(/'/g, '&#39;');
 }
 
-// İleride eklenebilecek diğer UI yardımcı fonksiyonları:
-// - Formu temizleme
-// - Modal gösterme/gizleme vb.
+const countryDisplayNames = {
+    "TURKEY": "Türkiye",
+    "FRANCE": "Fransa",
+    "ENGLAND": "İngiltere",
+    "SPAIN": "İspanya",
+    "ITALY": "İtalya",
+    "GERMANY": "Almanya",
+    "OTHER": "Diğer Ülke"
+};
+
+const leagueTypeDisplayNames = {
+    "NATIONAL_LEAGUE": "Ulusal Lig",
+    "DOMESTIC_CUP": "Ulusal Kupa",
+    "INTERNATIONAL_CLUB": "Uluslararası Kulüp Turnuvası",
+    "INTERNATIONAL_NATIONAL": "Uluslararası Milli Takım Turnuvası",
+    "FRIENDLY": "Hazırlık Maçı",
+    "OTHER": "Diğer"
+};
+
+/**
+ * Verilen country enum string'i için kullanıcı dostu adı döndürür.
+ * @param {string} countryEnumString - Ülke enum değeri (örn: "TURKEY").
+ * @returns {string} Kullanıcı dostu ülke adı veya orijinal string.
+ */
+function getCountryDisplayName(countryEnumString) {
+    return countryDisplayNames[countryEnumString] || countryEnumString;
+}
+
+/**
+ * Verilen leagueType enum string'i için kullanıcı dostu adı döndürür.
+ * @param {string} leagueTypeEnumString - Lig türü enum değeri (örn: "NATIONAL_LEAGUE").
+ * @returns {string} Kullanıcı dostu lig türü adı veya orijinal string.
+ */
+function getLeagueTypeDisplayName(leagueTypeEnumString) {
+    return leagueTypeDisplayNames[leagueTypeEnumString] || leagueTypeEnumString;
+}
+
+/**
+ * Bir lig objesinden kullanıcı dostu bir başlık stringi oluşturur.
+ * @param {object} league - { name, leagueType, country } içeren lig objesi.
+ * @returns {string} Oluşturulan başlık.
+ */
+function getLeagueCardSubtitle(league) {
+    if (!league) return "";
+    let subtitle = escapeHTML(getLeagueTypeDisplayName(league.leagueType));
+    if (league.country && (league.leagueType === 'NATIONAL_LEAGUE' || league.leagueType === 'DOMESTIC_CUP')) {
+        const countryName = getCountryDisplayName(league.country);
+        subtitle += ` (${escapeHTML(countryName)})`;
+    }
+    return subtitle;
+}

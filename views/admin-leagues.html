@@ -6,7 +6,6 @@
     </button>
 </div>
 
-<!-- Sayfaya özel mesaj alanı (admin-leagues-message) ve global mesaj alanı (index.html'den) -->
 <div id="admin-leagues-message" class="mb-3"></div>
 
 <div id="admin-leagues-loading" class="text-center py-5" style="display: none;">
@@ -21,6 +20,7 @@
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Lig Adı</th>
+                <th scope="col">Lig Türü</th>
                 <th scope="col">Ülke</th>
                 <th scope="col">İşlemler</th>
             </tr>
@@ -51,22 +51,38 @@
                     <div id="league-modal-message" class="mb-3"></div>
 
                     <div class="mb-3">
-                        <label for="league-name" class="form-label">Lig Adı</label>
+                        <label for="league-name" class="form-label">Lig Adı <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="league-name" name="name" required maxlength="100">
                     </div>
+
                     <div class="mb-3">
-                        <label for="league-country" class="form-label">Ülke</label>
-                        <select class="form-select" id="league-country" name="country" required>
-                            <option value="" selected disabled>Ülke Seçiniz...</option>
+                        <label for="league-type" class="form-label">Lig Türü <span class="text-danger">*</span></label>
+                        <select class="form-select" id="league-type" name="leagueType" required>
+                            <option value="" selected disabled>Lig Türü Seçiniz...</option>
+                            <option value="NATIONAL_LEAGUE">Ulusal Lig</option>
+                            <option value="DOMESTIC_CUP">Ulusal Kupa</option>
+                            <option value="INTERNATIONAL_CLUB">Uluslararası Kulüp Turnuvası</option>
+                            <option value="INTERNATIONAL_NATIONAL">Uluslararası Milli Takım Turnuvası</option>
+                            <option value="FRIENDLY">Hazırlık Maçı</option>
+                            <option value="OTHER">Diğer</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="league-country-group">
+                        <label for="league-country" class="form-label">Ülke <span id="league-country-required-indicator" class="text-danger" style="display:none;">*</span></label>
+                        <select class="form-select" id="league-country" name="country">
+                            <option value="" selected>Ülke Seçiniz (Gerekliyse)...</option>
+                            <!-- Ülkeler buraya dinamik olarak yüklenebilir veya statik kalabilir -->
                             <option value="TURKEY">Türkiye</option>
                             <option value="ENGLAND">İngiltere</option>
                             <option value="SPAIN">İspanya</option>
                             <option value="GERMANY">Almanya</option>
                             <option value="ITALY">İtalya</option>
                             <option value="FRANCE">Fransa</option>
-                            <!-- Backend'deki Country enum'a göre diğer ülkeler eklenebilir -->
+                            <option value="OTHER">Diğer Ülke</option>
                         </select>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
@@ -78,7 +94,7 @@
 </div>
 <!-- Modal Sonu -->
 
-<!-- Silme Onay Modalı -->
+<!-- Silme Onay Modalı (Değişiklik Yok) -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
@@ -88,7 +104,6 @@
             </div>
             <div class="modal-body">
                 Bu ligi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
-                {/* Silinecek ID'yi JS ile buraya yazdırabiliriz veya JS içinde tutabiliriz */}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
