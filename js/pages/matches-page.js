@@ -1,9 +1,5 @@
 // js/pages/matches-page.js
-console.log('matches-page.js: Script başladı.');
-
 function initializeMatchesPage() {
-    console.log('matches-page.js: initializeMatchesPage çağrıldı.');
-
     const matchesListContainer = document.getElementById('matches-list');
     const matchesLoadingSpinner = document.getElementById('matches-loading');
     const matchesErrorContainer = document.getElementById('matches-error');
@@ -24,10 +20,9 @@ function initializeMatchesPage() {
     const predictAwayTeamLabel = document.getElementById('predict-away-team-label');
     const predictionMessageModal = document.getElementById('prediction-message-modal');
 
+    let userPredictionsMap = new Map(); // Kullanıcının tahminlerini { matchId (number) -> predictionObject } şeklinde tutar
 
-    let currentToken = localStorage.getItem('jwtToken');
-    let userPredictionsMap = new Map();
-
+    // Kullanıcı dostu isimler (ui.js'e taşınabilir)
     const countryDisplayNames = {
         "TURKEY": "Türkiye", "FRANCE": "Fransa", "ENGLAND": "İngiltere",
         "SPAIN": "İspanya", "ITALY": "İtalya", "GERMANY": "Almanya", "OTHER": "Diğer Ülke"
@@ -38,33 +33,27 @@ function initializeMatchesPage() {
         "FRIENDLY": "Hazırlık Maçı", "OTHER": "Diğer"
     };
 
-    // --- KULLANICININ MEVCUT TAHMİNLERİNİ YÜKLEYEN FONKSİYON ---
     async function loadUserExistingPredictions() {
-        console.log("Maçlar Sayfası: loadUserExistingPredictions çağrıldı."); // BAŞLANGIÇ YORUMU
-        currentToken = localStorage.getItem('jwtToken'); // Her ihtimale karşı token'ı güncelle
+        const currentToken = localStorage.getItem('jwtToken');
         if (!currentToken) {
             userPredictionsMap.clear();
-            console.log("Maçlar Sayfası: Token yok, tahminler temizlendi."); // YORUM
             return;
         }
-        // Önceki tahminleri temizle, her seferinde güncel listeyi al
-        userPredictionsMap.clear();
+        userPredictionsMap.clear(); // Her çağrıda map'i temizle, güncel veriyi al
         const response = await fetchAPI('/predictions/user', 'GET', null, true);
-        if (response.success && Array.isArray(response.data)) {
-            response.data.forEach(prediction => {
-                // Maç ID'sinin null veya undefined olmadığından emin ol
+
+        if (response.success && response.data && Array.isArray(response.data.predictions)) {
+            response.data.predictions.forEach(prediction => {
                 if (prediction.match && typeof prediction.match.id !== 'undefined') {
-                    userPredictionsMap.set(prediction.match.id, prediction);
-                } else {
-                    console.warn("Maçlar sayfası: Geçersiz maç verisi içeren tahmin geldi:", prediction);
+                    const matchId = Number(prediction.match.id);
+                    if (!isNaN(matchId)) {
+                        userPredictionsMap.set(matchId, prediction);
+                    }
                 }
             });
-            console.log("Maçlar Sayfası: Kullanıcının mevcut tahminleri yüklendi, Map boyutu:", userPredictionsMap.size); // YORUM
         } else {
-            console.warn("Maçlar Sayfası: Kullanıcının mevcut tahminleri yüklenemedi veya boş. Map temizlendi."); // YORUM
-            userPredictionsMap.clear(); // Hata durumunda da temizle
+            userPredictionsMap.clear();
         }
-        // --- FONKSİYON SONU ---
     }
 
     async function loadLeaguesForFilter() {
@@ -95,25 +84,15 @@ function initializeMatchesPage() {
     }
 
     async function loadMatches(filters = {}) {
-        if (!matchesListContainer || !matchesLoadingSpinner || !matchesErrorContainer) return;
+        if (!matchesListContainer || !matchesLoadingSpinner || !matchesErrorContainer) {
+            return;
+        }
 
         showSpinner('matches-loading');
         matchesListContainer.innerHTML = '';
         matchesErrorContainer.style.display = 'none';
         if (matchesMessageContainer) clearMessage('matches-message');
         clearMessage('global-message-area');
-
-        currentToken = localStorage.getItem('jwtToken');
-        // Sadece token varsa ve filtresiz ilk yüklemede/sayfa yenilemede tahminleri çek
-        // Bu kontrol loadUserExistingPredictions içinde de var ama burada da olması zararsız.
-        // Ya da loadUserExistingPredictions'ı sadece initializePageData'da ve modal kapanınca çağırabiliriz.
-        // Şimdilik burada kalsın, ama tekrar tekrar çağrılmasını önlemek için bir state (örn: predictionsLoaded) tutulabilir.
-        if (currentToken && userPredictionsMap.size === 0 && Object.keys(filters).length === 0) {
-            // await loadUserExistingPredictions(); // Bu satır initializePageData ve modal hidden event'inde zaten var.
-                                                // Tekrar çağrılması gereksiz olabilir, performansa göre değerlendir.
-                                                // Şimdilik yoruma alıyorum, çünkü initializePageData'da zaten yükleniyor.
-        }
-
 
         const hashParts = location.hash.split('?');
         const queryParamsFromUrl = new URLSearchParams(hashParts[1] || '');
@@ -145,39 +124,32 @@ function initializeMatchesPage() {
             } else {
                 response.data.forEach(match => {
                     const matchDate = new Date(match.matchDate);
-                    // --- KULLANICININ BU MAÇ İÇİN TAHMİNİ VAR MI KONTROLÜ ---
-                    const userPredictionForThisMatch = userPredictionsMap.get(match.id);
-                    // --- YORUM: userPredictionForThisMatch, kullanıcının bu maç (match.id) için yaptığı tahmini içerir veya undefined'dır. ---
-                    
+                    const currentMatchId = Number(match.id);
+                    const userPredictionForThisMatch = userPredictionsMap.get(currentMatchId);
+
                     let actionContent = '';
-                    // Tahmin Yap butonu için koşullar: token var, maç bitmemiş, maç gelecekte VE kullanıcı bu maça daha önce tahmin yapmamış.
-                    const canPredict = currentToken && !match.finished && matchDate > new Date() && !userPredictionForThisMatch;
-                    
-                    // --- ACTION CONTENT OLUŞTURMA BLOGU BAŞLANGICI ---
+                    const isUserLoggedIn = !!localStorage.getItem('jwtToken');
+                    const canPredict = isUserLoggedIn && !match.finished && matchDate > new Date() && !userPredictionForThisMatch;
+
                     if (userPredictionForThisMatch) {
-                        // --- YORUM: Eğer kullanıcı bu maça daha önce tahmin yapmışsa, tahminini göster ---
                         actionContent = `
                             <div class="card-footer text-center bg-light py-2">
                                 <p class="mb-0 small"><strong>Tahmininiz:</strong>
-                                    <span class="fw-bold">${escapeHTML(userPredictionForThisMatch.predictedHomeScore.toString())} - ${escapeHTML(userPredictionForThisMatch.predictedAwayScore.toString())}</span>
-                                    <span class="text-muted">(${escapeHTML(userPredictionForThisMatch.stakePoints.toString())} Puan)</span>
+                                    <span class="fw-bold">${escapeHTML(String(userPredictionForThisMatch.predictedHomeScore))} - ${escapeHTML(String(userPredictionForThisMatch.predictedAwayScore))}</span>
+                                    <span class="text-muted">(${escapeHTML(String(userPredictionForThisMatch.stakePoints))} Puan)</span>
                                 </p>
                             </div>`;
                     } else if (canPredict) {
-                        // --- YORUM: Eğer kullanıcı tahmin yapabilir durumdaysa (ve daha önce yapmamışsa), Tahmin Yap butonunu göster ---
                         actionContent = `
                             <div class="card-footer text-center py-2">
                                 <button class="btn btn-sm btn-warning predict-btn"
-                                        data-match-id="${match.id}"
+                                        data-match-id="${currentMatchId}"
                                         data-home-team="${escapeHTML(match.homeTeam)}"
                                         data-away-team="${escapeHTML(match.awayTeam)}">
                                     Tahmin Yap
                                 </button>
                             </div>`;
                     }
-                    // --- YORUM: Eğer maç bitmişse, geçmişteyse veya token yoksa actionContent boş kalır (veya farklı bir mesaj gösterilebilir) ---
-                    // --- ACTION CONTENT OLUŞTURMA BLOGU SONU ---
-
 
                     let leagueDisplay = escapeHTML(match.league.name);
                     const typeName = match.league.leagueType ? (leagueTypeDisplayNames[match.league.leagueType] || match.league.leagueType) : '';
@@ -196,7 +168,7 @@ function initializeMatchesPage() {
                             <div class="card h-100 shadow-sm">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <span>${leagueDisplay}</span>
-                                    <small class="text-muted">ID: ${match.id}</small>
+                                    <small class="text-muted">ID: ${currentMatchId}</small>
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title text-center">${escapeHTML(match.homeTeam)} vs ${escapeHTML(match.awayTeam)}</h5>
@@ -252,7 +224,9 @@ function initializeMatchesPage() {
             const activeFilters = Object.fromEntries(
                 Object.entries(filters).filter(([_, v]) => v != null && v !== '')
             );
-            await loadUserExistingPredictions(); // Filtreleme öncesi tahminleri güncelle
+            if (localStorage.getItem('jwtToken')) {
+                await loadUserExistingPredictions();
+            }
             await loadMatches(activeFilters);
         });
     }
@@ -260,7 +234,9 @@ function initializeMatchesPage() {
     if (clearFiltersButton) {
         clearFiltersButton.addEventListener('click', async function() {
             if(filterForm) filterForm.reset();
-            await loadUserExistingPredictions(); // Filtreleri temizleyince de tahminleri güncelle
+            if (localStorage.getItem('jwtToken')) {
+                await loadUserExistingPredictions();
+            }
             await loadMatches();
         });
     }
@@ -284,7 +260,9 @@ function initializeMatchesPage() {
 
 
     function openPredictionModal(matchId, homeTeam, awayTeam) {
-         if (!predictMatchIdInput || !predictMatchTeamsSpan || !predictHomeTeamLabel || !predictAwayTeamLabel || !predictionModal || !predictionForm) return;
+         if (!predictMatchIdInput || !predictMatchTeamsSpan || !predictHomeTeamLabel || !predictAwayTeamLabel || !predictionModal || !predictionForm) {
+            return;
+         }
         if(predictionMessageModal) clearMessage('prediction-message-modal');
         predictionForm.reset();
         predictMatchIdInput.value = matchId;
@@ -296,7 +274,7 @@ function initializeMatchesPage() {
 
     async function handlePredictionSubmit(event) {
         event.preventDefault();
-        currentToken = localStorage.getItem('jwtToken');
+        const currentToken = localStorage.getItem('jwtToken');
         if (!currentToken) {
             if (predictionMessageModal) showMessage('prediction-message-modal', 'Tahmin yapmak için giriş yapmalısınız.', 'warning');
             return;
@@ -359,7 +337,7 @@ function initializeMatchesPage() {
                 if(predictionModal) predictionModal.hide();
             }, 1500);
         } else {
-            const errorMessage = (response.error && response.error.message) ? response.error.message : 'Tahmin kaydedilirken bir hata oluştu.';
+            const errorMessage = (response.error && response.error.message) ? response.error.message : (response.message || 'Tahmin kaydedilirken bir hata oluştu.');
             if(predictionMessageModal) showMessage('prediction-message-modal', errorMessage, 'danger');
         }
     }
@@ -373,7 +351,7 @@ function initializeMatchesPage() {
             if(predictionForm) predictionForm.reset();
             if(predictionMessageModal) clearMessage('prediction-message-modal');
 
-            currentToken = localStorage.getItem('jwtToken');
+            const currentToken = localStorage.getItem('jwtToken');
             if (currentToken) {
                 await loadUserExistingPredictions();
             } else {
@@ -393,13 +371,12 @@ function initializeMatchesPage() {
     }
 
     async function initializePageData() {
-        await loadLeaguesForFilter(); // Önce ligleri yükle
-        currentToken = localStorage.getItem('jwtToken');
+        await loadLeaguesForFilter();
+        const currentToken = localStorage.getItem('jwtToken');
         if (currentToken) {
-            await loadUserExistingPredictions(); // Sonra kullanıcı tahminlerini yükle
+            await loadUserExistingPredictions();
         }
 
-        // Sayfa ilk yüklendiğinde veya URL'den filtre geldiğinde
         const hashPartsInit = location.hash.split('?');
         const queryParamsFromUrlInit = new URLSearchParams(hashPartsInit[1] || '');
         const initialLeagueIdToLoad = queryParamsFromUrlInit.get('leagueId');
@@ -407,14 +384,11 @@ function initializeMatchesPage() {
         const initialFilters = {};
         if (initialLeagueIdToLoad) {
             initialFilters.leagueId = initialLeagueIdToLoad;
-            // Dropdown'ı ayarla (loadLeaguesForFilter bittikten sonra)
-            if (leagueSelect) { // leagueSelect'in varlığından emin ol
-                // Option'ların yüklenmesini beklemek için küçük bir gecikme veya promise bazlı çözüm
-                // en basit yol, doğrudan set etmek, eğer option'lar varsa çalışır.
+            if (leagueSelect) {
                 leagueSelect.value = initialLeagueIdToLoad;
             }
         }
-        await loadMatches(initialFilters); // En son maçları yükle
+        await loadMatches(initialFilters);
         updateClearFiltersButtonVisibility();
     }
 
