@@ -10,12 +10,11 @@ function initializeMatchesPage() {
     const matchesMessageContainer = document.getElementById('matches-message');
     const filterForm = document.getElementById('filter-matches-form');
     const leagueSelect = document.getElementById('filter-leagueId');
-    const leagueTypeSelect = document.getElementById('filter-leagueType'); // YENİ
+    const leagueTypeSelect = document.getElementById('filter-leagueType');
     const startDateInput = document.getElementById('filter-startDate');
     const endDateInput = document.getElementById('filter-endDate');
     const clearFiltersButton = document.getElementById('clear-filters-btn');
 
-    // ... (predictionModal ile ilgili değişkenler aynı kalır)
     const predictionModalElement = document.getElementById('predictionModal');
     const predictionModal = predictionModalElement ? new bootstrap.Modal(predictionModalElement) : null;
     const predictionForm = document.getElementById('prediction-form');
@@ -29,7 +28,6 @@ function initializeMatchesPage() {
     let currentToken = localStorage.getItem('jwtToken');
     let userPredictionsMap = new Map();
 
-    // Kullanıcı dostu isimler (ui.js'e taşınabilir)
     const countryDisplayNames = {
         "TURKEY": "Türkiye", "FRANCE": "Fransa", "ENGLAND": "İngiltere",
         "SPAIN": "İspanya", "ITALY": "İtalya", "GERMANY": "Almanya", "OTHER": "Diğer Ülke"
@@ -40,38 +38,43 @@ function initializeMatchesPage() {
         "FRIENDLY": "Hazırlık Maçı", "OTHER": "Diğer"
     };
 
-
+    // --- KULLANICININ MEVCUT TAHMİNLERİNİ YÜKLEYEN FONKSİYON ---
     async function loadUserExistingPredictions() {
-        // ... (Bu fonksiyon aynı kalabilir)
+        console.log("Maçlar Sayfası: loadUserExistingPredictions çağrıldı."); // BAŞLANGIÇ YORUMU
+        currentToken = localStorage.getItem('jwtToken'); // Her ihtimale karşı token'ı güncelle
         if (!currentToken) {
             userPredictionsMap.clear();
+            console.log("Maçlar Sayfası: Token yok, tahminler temizlendi."); // YORUM
             return;
         }
+        // Önceki tahminleri temizle, her seferinde güncel listeyi al
+        userPredictionsMap.clear();
         const response = await fetchAPI('/predictions/user', 'GET', null, true);
         if (response.success && Array.isArray(response.data)) {
-            userPredictionsMap.clear();
             response.data.forEach(prediction => {
+                // Maç ID'sinin null veya undefined olmadığından emin ol
                 if (prediction.match && typeof prediction.match.id !== 'undefined') {
                     userPredictionsMap.set(prediction.match.id, prediction);
                 } else {
                     console.warn("Maçlar sayfası: Geçersiz maç verisi içeren tahmin geldi:", prediction);
                 }
             });
+            console.log("Maçlar Sayfası: Kullanıcının mevcut tahminleri yüklendi, Map boyutu:", userPredictionsMap.size); // YORUM
         } else {
-            userPredictionsMap.clear();
+            console.warn("Maçlar Sayfası: Kullanıcının mevcut tahminleri yüklenemedi veya boş. Map temizlendi."); // YORUM
+            userPredictionsMap.clear(); // Hata durumunda da temizle
         }
+        // --- FONKSİYON SONU ---
     }
 
     async function loadLeaguesForFilter() {
-        // ... (Bu fonksiyon aynı kalabilir)
         if (!leagueSelect) return;
         const response = await fetchAPI('/leagues', 'GET', null, false);
         if (response.success && Array.isArray(response.data)) {
-            leagueSelect.innerHTML = '<option value="">Tüm Ligler</option>'; // Mevcut içeriği temizle ve varsayılanı ekle
+            leagueSelect.innerHTML = '<option value="">Tüm Ligler</option>';
             response.data.forEach(league => {
                 const option = document.createElement('option');
                 option.value = league.id;
-                // Lig türünü ve ülkeyi daha anlamlı göster
                 let leagueDisplayName = escapeHTML(league.name);
                 const typeName = league.leagueType ? (leagueTypeDisplayNames[league.leagueType] || league.leagueType) : '';
                 const countryName = league.country ? (countryDisplayNames[league.country] || league.country) : '';
@@ -80,7 +83,7 @@ function initializeMatchesPage() {
                     leagueDisplayName += ` (${escapeHTML(typeName)}, ${escapeHTML(countryName)})`;
                 } else if (typeName) {
                      leagueDisplayName += ` (${escapeHTML(typeName)})`;
-                } else if (countryName) { // Eski ligler için fallback (leagueType yoksa)
+                } else if (countryName) {
                     leagueDisplayName += ` (${escapeHTML(countryName)})`;
                 }
                 option.textContent = leagueDisplayName;
@@ -94,41 +97,45 @@ function initializeMatchesPage() {
     async function loadMatches(filters = {}) {
         if (!matchesListContainer || !matchesLoadingSpinner || !matchesErrorContainer) return;
 
-        showSpinner('matches-loading'); // ui.js'den gelmeli
+        showSpinner('matches-loading');
         matchesListContainer.innerHTML = '';
         matchesErrorContainer.style.display = 'none';
-        if (matchesMessageContainer) clearMessage('matches-message'); // ui.js'den
-        clearMessage('global-message-area'); // ui.js'den
+        if (matchesMessageContainer) clearMessage('matches-message');
+        clearMessage('global-message-area');
 
         currentToken = localStorage.getItem('jwtToken');
-        // Filtresiz ilk yüklemede ve token varsa tahminleri çek
+        // Sadece token varsa ve filtresiz ilk yüklemede/sayfa yenilemede tahminleri çek
+        // Bu kontrol loadUserExistingPredictions içinde de var ama burada da olması zararsız.
+        // Ya da loadUserExistingPredictions'ı sadece initializePageData'da ve modal kapanınca çağırabiliriz.
+        // Şimdilik burada kalsın, ama tekrar tekrar çağrılmasını önlemek için bir state (örn: predictionsLoaded) tutulabilir.
         if (currentToken && userPredictionsMap.size === 0 && Object.keys(filters).length === 0) {
-             await loadUserExistingPredictions();
+            // await loadUserExistingPredictions(); // Bu satır initializePageData ve modal hidden event'inde zaten var.
+                                                // Tekrar çağrılması gereksiz olabilir, performansa göre değerlendir.
+                                                // Şimdilik yoruma alıyorum, çünkü initializePageData'da zaten yükleniyor.
         }
 
-        // URL'den gelen leagueId filtresini uygula
+
         const hashParts = location.hash.split('?');
         const queryParamsFromUrl = new URLSearchParams(hashParts[1] || '');
         const initialLeagueId = queryParamsFromUrl.get('leagueId');
 
-        if (initialLeagueId && !filters.leagueId && Object.keys(filters).length === 0) { // Sadece ilk yüklemede ve filtre yoksa
+        if (initialLeagueId && !filters.leagueId && Object.keys(filters).length === 0) {
             filters.leagueId = initialLeagueId;
-            if (leagueSelect && leagueSelect.options.length > 1) { // Ligler yüklendiyse
-                leagueSelect.value = initialLeagueId; // Dropdown'ı da ayarla
+            if (leagueSelect && leagueSelect.options.length > 1) {
+                leagueSelect.value = initialLeagueId;
             }
         }
 
         let queryParams = new URLSearchParams();
         if (filters.leagueId) queryParams.append('leagueId', filters.leagueId);
-        if (filters.leagueType) queryParams.append('leagueType', filters.leagueType); // YENİ
+        if (filters.leagueType) queryParams.append('leagueType', filters.leagueType);
         if (filters.startDate) queryParams.append('startDate', filters.startDate);
         if (filters.endDate) queryParams.append('endDate', filters.endDate);
 
         const endpoint = `/matches?${queryParams.toString()}`;
-        console.log("Maçlar yükleniyor, endpoint:", endpoint); // Debug için
         const response = await fetchAPI(endpoint, 'GET', null, false);
 
-        hideSpinner('matches-loading'); // ui.js'den
+        hideSpinner('matches-loading');
         if(clearFiltersButton) updateClearFiltersButtonVisibility();
 
         if (response.success && Array.isArray(response.data)) {
@@ -138,11 +145,17 @@ function initializeMatchesPage() {
             } else {
                 response.data.forEach(match => {
                     const matchDate = new Date(match.matchDate);
+                    // --- KULLANICININ BU MAÇ İÇİN TAHMİNİ VAR MI KONTROLÜ ---
                     const userPredictionForThisMatch = userPredictionsMap.get(match.id);
+                    // --- YORUM: userPredictionForThisMatch, kullanıcının bu maç (match.id) için yaptığı tahmini içerir veya undefined'dır. ---
+                    
                     let actionContent = '';
+                    // Tahmin Yap butonu için koşullar: token var, maç bitmemiş, maç gelecekte VE kullanıcı bu maça daha önce tahmin yapmamış.
                     const canPredict = currentToken && !match.finished && matchDate > new Date() && !userPredictionForThisMatch;
-
+                    
+                    // --- ACTION CONTENT OLUŞTURMA BLOGU BAŞLANGICI ---
                     if (userPredictionForThisMatch) {
+                        // --- YORUM: Eğer kullanıcı bu maça daha önce tahmin yapmışsa, tahminini göster ---
                         actionContent = `
                             <div class="card-footer text-center bg-light py-2">
                                 <p class="mb-0 small"><strong>Tahmininiz:</strong>
@@ -151,6 +164,7 @@ function initializeMatchesPage() {
                                 </p>
                             </div>`;
                     } else if (canPredict) {
+                        // --- YORUM: Eğer kullanıcı tahmin yapabilir durumdaysa (ve daha önce yapmamışsa), Tahmin Yap butonunu göster ---
                         actionContent = `
                             <div class="card-footer text-center py-2">
                                 <button class="btn btn-sm btn-warning predict-btn"
@@ -161,8 +175,10 @@ function initializeMatchesPage() {
                                 </button>
                             </div>`;
                     }
+                    // --- YORUM: Eğer maç bitmişse, geçmişteyse veya token yoksa actionContent boş kalır (veya farklı bir mesaj gösterilebilir) ---
+                    // --- ACTION CONTENT OLUŞTURMA BLOGU SONU ---
 
-                    // Lig adını, türünü ve ülkesini göster
+
                     let leagueDisplay = escapeHTML(match.league.name);
                     const typeName = match.league.leagueType ? (leagueTypeDisplayNames[match.league.leagueType] || match.league.leagueType) : '';
                     const countryName = match.league.country ? (countryDisplayNames[match.league.country] || match.league.country) : '';
@@ -174,7 +190,6 @@ function initializeMatchesPage() {
                     } else if (countryName) {
                         leagueDisplay += ` (${escapeHTML(countryName)})`;
                     }
-
 
                     const matchCard = `
                         <div class="col">
@@ -190,7 +205,7 @@ function initializeMatchesPage() {
                                     </p>
                                     <div class="mt-auto text-center">
                                         ${match.finished ?
-                                            `<p class="card-text fs-4 fw-bold mb-1">${match.homeScore} - ${match.awayScore}</p>
+                                            `<p class="card-text fs-4 fw-bold mb-1">${escapeHTML(String(match.homeScore))} - ${escapeHTML(String(match.awayScore))}</p>
                                              <span class="badge bg-danger">Maç Bitti</span>` :
                                             '<span class="badge bg-success">Yakında</span>'
                                         }
@@ -202,10 +217,10 @@ function initializeMatchesPage() {
                     `;
                     matchesListContainer.insertAdjacentHTML('beforeend', matchCard);
                 });
-                addPredictButtonListeners(); // İsmi addPredictButtonListeners olarak değiştirdim, daha anlamlı.
+                addPredictButtonListeners();
             }
             if (matchesMessageContainer && response.message && response.data && response.data.length > 0) {
-                 showMessage('matches-message', response.message, 'success'); // ui.js'den
+                 showMessage('matches-message', response.message, 'success');
             }
         } else {
             matchesErrorContainer.style.display = 'block';
@@ -214,7 +229,7 @@ function initializeMatchesPage() {
         }
     }
 
-    function addPredictButtonListeners() { // addTableButtonListeners -> addPredictButtonListeners
+    function addPredictButtonListeners() {
         document.querySelectorAll('.predict-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const matchId = this.dataset.matchId;
@@ -230,14 +245,14 @@ function initializeMatchesPage() {
             event.preventDefault();
             const filters = {
                 leagueId: leagueSelect ? leagueSelect.value : null,
-                leagueType: leagueTypeSelect ? leagueTypeSelect.value : null, // YENİ
-                startDate: startDateInput ? (startDateInput.value ? new Date(startDateInput.value).toISOString().slice(0, 16) : null) : null, // ISOString ve slice(0,16) datetime-local formatına uygun
+                leagueType: leagueTypeSelect ? leagueTypeSelect.value : null,
+                startDate: startDateInput ? (startDateInput.value ? new Date(startDateInput.value).toISOString().slice(0, 16) : null) : null,
                 endDate: endDateInput ? (endDateInput.value ? new Date(endDateInput.value).toISOString().slice(0, 16) : null) : null
             };
-            // Sadece dolu olan filtreleri al
             const activeFilters = Object.fromEntries(
                 Object.entries(filters).filter(([_, v]) => v != null && v !== '')
             );
+            await loadUserExistingPredictions(); // Filtreleme öncesi tahminleri güncelle
             await loadMatches(activeFilters);
         });
     }
@@ -245,34 +260,30 @@ function initializeMatchesPage() {
     if (clearFiltersButton) {
         clearFiltersButton.addEventListener('click', async function() {
             if(filterForm) filterForm.reset();
-            // URL'den leagueId filtresini temizle (opsiyonel)
-            // const currentHash = location.hash.split('?')[0];
-            // history.pushState(null, null, currentHash);
-            await loadMatches(); // Tüm filtreleri temizleyerek yükle
+            await loadUserExistingPredictions(); // Filtreleri temizleyince de tahminleri güncelle
+            await loadMatches();
         });
     }
 
     function updateClearFiltersButtonVisibility() {
         if (!clearFiltersButton) return;
         if ((leagueSelect && leagueSelect.value) ||
-            (leagueTypeSelect && leagueTypeSelect.value) || // YENİ
+            (leagueTypeSelect && leagueTypeSelect.value) ||
             (startDateInput && startDateInput.value) ||
             (endDateInput && endDateInput.value)) {
-            clearFiltersButton.style.display = 'inline-block'; // veya 'block'
+            clearFiltersButton.style.display = 'inline-block';
         } else {
             clearFiltersButton.style.display = 'none';
         }
     }
 
-    // Filtre elemanlarına event listener ekle
     if(leagueSelect) leagueSelect.addEventListener('change', updateClearFiltersButtonVisibility);
-    if(leagueTypeSelect) leagueTypeSelect.addEventListener('change', updateClearFiltersButtonVisibility); // YENİ
+    if(leagueTypeSelect) leagueTypeSelect.addEventListener('change', updateClearFiltersButtonVisibility);
     if(startDateInput) startDateInput.addEventListener('input', updateClearFiltersButtonVisibility);
     if(endDateInput) endDateInput.addEventListener('input', updateClearFiltersButtonVisibility);
 
 
     function openPredictionModal(matchId, homeTeam, awayTeam) {
-        // ... (Bu fonksiyon aynı kalabilir)
          if (!predictMatchIdInput || !predictMatchTeamsSpan || !predictHomeTeamLabel || !predictAwayTeamLabel || !predictionModal || !predictionForm) return;
         if(predictionMessageModal) clearMessage('prediction-message-modal');
         predictionForm.reset();
@@ -284,7 +295,6 @@ function initializeMatchesPage() {
     }
 
     async function handlePredictionSubmit(event) {
-        // ... (Bu fonksiyon büyük ölçüde aynı kalabilir, içindeki escapeHTML kullanımlarını kontrol et)
         event.preventDefault();
         currentToken = localStorage.getItem('jwtToken');
         if (!currentToken) {
@@ -345,9 +355,8 @@ function initializeMatchesPage() {
                 localStorage.setItem('totalPoints', response.data.updatedUserTotalPoints);
                 if (typeof updateNavigation === 'function') updateNavigation();
             }
-             // Tahmin başarılı olduktan sonra tahmin listesini ve maç kartlarını yenilemek için modal kapanınca tetiklenecek
             setTimeout(() => {
-                if(predictionModal) predictionModal.hide(); // Bu, 'hidden.bs.modal' event'ini tetikleyecek
+                if(predictionModal) predictionModal.hide();
             }, 1500);
         } else {
             const errorMessage = (response.error && response.error.message) ? response.error.message : 'Tahmin kaydedilirken bir hata oluştu.';
@@ -366,11 +375,10 @@ function initializeMatchesPage() {
 
             currentToken = localStorage.getItem('jwtToken');
             if (currentToken) {
-                await loadUserExistingPredictions(); // Kullanıcının tahminlerini yeniden yükle
+                await loadUserExistingPredictions();
             } else {
                 userPredictionsMap.clear();
             }
-            // Mevcut filtreleri alıp maçları yeniden yükle
             const currentFilters = {
                 leagueId: leagueSelect ? leagueSelect.value : null,
                 leagueType: leagueTypeSelect ? leagueTypeSelect.value : null,
@@ -380,16 +388,18 @@ function initializeMatchesPage() {
             const activeFilters = Object.fromEntries(
                 Object.entries(currentFilters).filter(([_, v]) => v != null && v !== '')
             );
-            await loadMatches(activeFilters); // Maçları mevcut filtrelerle yeniden yükle
+            await loadMatches(activeFilters);
         });
     }
 
     async function initializePageData() {
-        await loadLeaguesForFilter();
+        await loadLeaguesForFilter(); // Önce ligleri yükle
         currentToken = localStorage.getItem('jwtToken');
         if (currentToken) {
-            await loadUserExistingPredictions();
+            await loadUserExistingPredictions(); // Sonra kullanıcı tahminlerini yükle
         }
+
+        // Sayfa ilk yüklendiğinde veya URL'den filtre geldiğinde
         const hashPartsInit = location.hash.split('?');
         const queryParamsFromUrlInit = new URLSearchParams(hashPartsInit[1] || '');
         const initialLeagueIdToLoad = queryParamsFromUrlInit.get('leagueId');
@@ -397,21 +407,20 @@ function initializeMatchesPage() {
         const initialFilters = {};
         if (initialLeagueIdToLoad) {
             initialFilters.leagueId = initialLeagueIdToLoad;
-             // Eğer ligler yüklendiyse ve leagueSelect varsa, değeri ayarla
-            if (leagueSelect && leagueSelect.options.length > 1) { // Kontrol et: ligler yüklendi mi?
-                 // Lig dropdown'ının dolmasını bekle veya burada bir timeout/promise ile senkronize et
-                 // Şimdilik doğrudan set etmeye çalışalım, loadLeaguesForFilter önce biterse çalışır.
+            // Dropdown'ı ayarla (loadLeaguesForFilter bittikten sonra)
+            if (leagueSelect) { // leagueSelect'in varlığından emin ol
+                // Option'ların yüklenmesini beklemek için küçük bir gecikme veya promise bazlı çözüm
+                // en basit yol, doğrudan set etmek, eğer option'lar varsa çalışır.
                 leagueSelect.value = initialLeagueIdToLoad;
             }
         }
-        await loadMatches(initialFilters);
-        updateClearFiltersButtonVisibility(); // Sayfa ilk yüklendiğinde de buton görünürlüğünü ayarla
+        await loadMatches(initialFilters); // En son maçları yükle
+        updateClearFiltersButtonVisibility();
     }
 
     initializePageData();
-} // initializeMatchesPage Sonu
+}
 
-// ui.js'deki showSpinner, hideSpinner, clearMessage, showMessage, escapeHTML fonksiyonlarının var olduğu varsayılıyor.
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeMatchesPage);
 } else {
