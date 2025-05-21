@@ -9,21 +9,34 @@
     <div class="card-header">Filtrele</div>
     <div class="card-body">
         <form id="filter-matches-form" class="row g-3 align-items-end">
-            <div class="col-md-4 col-sm-6">
+            <div class="col-lg-3 col-md-6 col-sm-12">
                 <label for="filter-leagueId" class="form-label">Lig</label>
                 <select id="filter-leagueId" class="form-select">
                     <option value="">Tüm Ligler</option>
+                    <!-- Ligler JS ile yüklenecek -->
                 </select>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <label for="filter-leagueType" class="form-label">Lig Türü</label>
+                <select id="filter-leagueType" class="form-select">
+                    <option value="">Tüm Türler</option>
+                    <option value="NATIONAL_LEAGUE">Ulusal Lig</option>
+                    <option value="DOMESTIC_CUP">Ulusal Kupa</option>
+                    <option value="INTERNATIONAL_CLUB">Uluslararası Kulüp Turnuvası</option>
+                    <option value="INTERNATIONAL_NATIONAL">Uluslararası Milli Takım Turnuvası</option>
+                    <option value="FRIENDLY">Hazırlık Maçı</option>
+                    <option value="OTHER">Diğer</option>
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
                 <label for="filter-startDate" class="form-label">Başlangıç Tarihi</label>
                 <input type="datetime-local" class="form-control" id="filter-startDate">
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-lg-2 col-md-4 col-sm-6">
                 <label for="filter-endDate" class="form-label">Bitiş Tarihi</label>
                 <input type="datetime-local" class="form-control" id="filter-endDate">
             </div>
-            <div class="col-md-2 col-sm-6 d-grid">
+            <div class="col-lg-2 col-md-4 col-sm-12 d-grid">
                 <button type="submit" class="btn btn-primary">Filtrele</button>
                 <button type="button" id="clear-filters-btn" class="btn btn-outline-secondary mt-2" style="display: none;">Temizle</button>
             </div>
@@ -31,6 +44,7 @@
     </div>
 </div>
 
+<!-- Kalan HTML içeriği (matches-loading, matches-list, matches-error, predictionModal) aynı kalabilir -->
 <div id="matches-loading" class="text-center py-5" style="display: none;">
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Maçlar Yükleniyor...</span>
@@ -45,7 +59,7 @@
     Maçlar yüklenirken bir hata oluştu veya filtrenize uygun maç bulunamadı.
 </div>
 
-<!-- Tahmin Yap Modal -->
+<!-- Tahmin Yap Modal (Değişiklik Yok) -->
 <div class="modal fade" id="predictionModal" tabindex="-1" aria-labelledby="predictionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
