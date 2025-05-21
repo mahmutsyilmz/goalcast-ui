@@ -13,7 +13,7 @@ function showMessage(elementId, message, type = 'info') {
         const alertClass = `alert-${type}`;
         messageContainer.innerHTML = `
             <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                ${escapeHTML(message)} {/* Mesajı da escape edelim */}
+                ${escapeHTML(message)}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
